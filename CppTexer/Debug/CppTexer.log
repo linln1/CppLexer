@@ -1,0 +1,10 @@
+﻿  mylexer.cpp
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(2,1): warning C4005: “_CRT_SECURE_NO_WARNINGS”: 宏重定义
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp : message : 参见“_CRT_SECURE_NO_WARNINGS”的前一个定义
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(353,26): warning C4018: “>”: 有符号/无符号不匹配
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(856,1): warning C4010: 单行注释包含行继续符
+  mylexer.h
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(353,26): warning C4018: “>”: 有符号/无符号不匹配
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(856,1): warning C4010: 单行注释包含行继续符
+  正在生成代码...
+  CppTexer.vcxproj -> C:\Users\linln\source\repos\CppTexer\Debug\CppTexer.exe
