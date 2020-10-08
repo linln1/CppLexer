@@ -134,9 +134,9 @@ void lexerInit() {
 
 void lexerCleanup() {
 	printf("\n tkTable length = %d", tkTable.len);
-	for (int i = 0; i < tkTable.len; i++) {
-		free(tkTable.data[i]);
-	}
+//	for (int i = 0; i < tkTable.len; i++) {
+//		free(tkTable.data[i]);
+//	}
 	free(tkTable.data);
 }
 
@@ -170,7 +170,7 @@ void linkError(char* fmt, ...) {
 
 int main(int argc, char **argv) {
 	fin = fopen(argv[1], "rb");
-	filename = (char*)malloc(sizeof(char) * strlen(argv[1]));
+	filename = (char*)malloc(sizeof(char) * strlen(argv[1])+1);
 	memcpy(filename, argv[1], strlen(argv[1]) + 1);
 	if (!fin) {
 		printf("can't open source file!\n");
@@ -185,21 +185,27 @@ int main(int argc, char **argv) {
 
 	preprocess();//预处理，去掉注释
 
-	while (ch!=EOF) {
+	while(ch!=-1) {
 		lexerDirect();
 		if(token>=0)
 			colorToken(LEX_NORMAL);
+		if (over || ch == '\0')
+			break;
+		/*
+		if (feof(fin)) {
+			if (buffer->cur == &buffer->data[BUFFER_MAX]) {
+				break;
+			}
+		}*/
 	}
 	printf("\n line of code : %d\n", lineCount);
 
 	lexerCleanup();
 }
 
-//没有识别出printf("hello world!");\n 这一整行它当作 {输出了，\
-然后就是数字打印有问题，不知道识别有没有问题，应该在return 0后面打印分号，但是打印了三个number \
-然后就是没有读到文件结束符，所以一直在循环 \
+//\
+ \
 另外就是，现在标识符和定义符的输出都没有错了 \
 tokenCode 的顺序需要调整一下\
 getTkstr 函数有些问题\
 lexDirect 函数中有的地方buffer->cur 需要--，这个得一个一个试\
-符号定义的有点多了

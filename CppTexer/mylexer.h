@@ -11,7 +11,7 @@
 #include <handleapi.h>
 #define MAXKEY 1024
 #define INITSIZE 8
-#define BUFFER_MAX 4096
+#define BUFFER_MAX 50
 
 
 //some structure
@@ -187,7 +187,7 @@ int boundaryCount = 0; //源代码界符个数
 int constCount = 0; //源代码常数个数
 int OperatorCount = 0; //源代码运算符个数
 int token;
-
+bool over = false; //标志文件是否读完了
 char* filename;
 char ch;
 
@@ -237,7 +237,7 @@ char getChar() {
 
 	//buffer要读下一行(部分)
 	if (ch == '\n') {
-		printf("\n");
+		//printf("\n");
 		fgets(buffer->data, BUFFER_MAX, fin);//读取文件下一行,读取BUFFER_MAX个字符或者读取到'\n'时停止
 		buffer->startPtr = &buffer->data[0];//当前单词已经结束，新的单词开始
 		buffer->cur = &buffer->data[0];
@@ -261,7 +261,7 @@ char getChar() {
 char* getTkstr(int v) {
 	if (v > tkTable.len)
 		return NULL;
-	if (v > CPP_IDENT) {
+	if (v > CPP_IDENT || (v >= CPP_CINT && v <= CPP_CSTR) || (v >= NOT_FLOAT && v <= CPP_N_DECIMAL)) {
 		return tkstr.data;
 	}
 //	else if (v >= CPP_CINT && v < CPP_CSTR) {
@@ -297,11 +297,11 @@ void myDynStringReset(dynString* strP) {
 }
 
 void myDynStringRealloc(dynString* strP, int newSize) {
-	int Cap = 0;
+	int Cap = 1;
 	char* data;
 	Cap = strP->capacity;
 	while (Cap < newSize) {
-		Cap = Cap >> 1;
+		Cap = Cap << 1;
 	}
 	data = (char*)realloc(strP->data, Cap);
 	if (!data) {
@@ -350,7 +350,7 @@ void myDynArrayRealloc(dynArray* arrP, int newSize) {
 void myDynArrayAdd(dynArray* arrP, void* data) {
 	int len = 0;
 	len = arrP->len + 1;
-	if (len * sizeof(void*) > arrP->capacity) {
+	if (len * sizeof(void*) > (unsigned int)arrP->capacity) {
 		myDynArrayRealloc(arrP, len * sizeof(void*));
 	}
 	arrP->data[len - 1] = data;
@@ -586,7 +586,7 @@ void parseIdentifier(tkWord* result) {//
 		ch = getChar();
 	}
 	myDynStringChcat(&tkstr, '\0');
-	result->str = (char*)malloc(sizeof(char) * tkstr.len + 1);
+	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
 	memcpy(result->str, tkstr.data, tkstr.len + 1);
 	tkInsertIdentifier((char*)result->str);
 	result->code = token;
@@ -596,17 +596,28 @@ void parseString(tkWord* result) {//常量不用加入符号表
 	char c;
 	token = CPP_CCHAR;
 	myDynStringReset(&tkstr);
+	myDynStringChcat(&tkstr, ch);
+	char begin = ch;
 	ch = getChar();
 	for (;;) {
-		if (ch == ' ') {
+		if (ch == begin) {
+			myDynStringChcat(&tkstr, ch);
+			break;
+		}
+		else {
+			myDynStringChcat(&tkstr, ch);
+			ch = getChar();
+		}
+/*
+		else if (ch == ' ') {
+			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
 		}
 		else if (ch == '\\') {
+			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
-			if (ch == '\n') {
-				myDynStringChcat(&tkstr, ch);
-				myDynStringChcat(&tkstr, '\0');
-			}
+			myDynStringChcat(&tkstr, ch);
+
 			switch (ch) {
 			case '0':
 				c = '\0';
@@ -638,28 +649,26 @@ void parseString(tkWord* result) {//常量不用加入符号表
 			case '\\':
 				c = '\\';
 				break;
-			default:
-				c = ch;
-				if (c >= '!' && c <= '~') {
-					error("fail to recognize illegal transferred meaning!\n");
-				}
-				else {
-					error("fail to recognize illegal transferred meaning!\n");
-				}
+			case 'n':
+				c = '\n';
 				break;
+			default:
+				break;
+
 			}
-			myDynStringChcat(&tkstr, c);
-			getChar();
+
+			ch = getChar();
 		}
 		else {
 			myDynStringChcat(&tkstr, ch);
-			getChar();
+			ch = getChar();
 		}
+*/
 	}
 	myDynStringChcat(&tkstr, '\0');
 	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
 	memcpy(result->str, tkstr.data, tkstr.len + 1);
-	getChar();
+	token = result->code = CPP_CCHAR;
 }
 
 void parseFileName(tkWord* result) {
@@ -683,7 +692,7 @@ void parseFileName(tkWord* result) {
 		}
 	}
 	myDynStringChcat(&tkstr, '\0');
-	result->str = (char*)malloc(sizeof(char) * tkstr.len + 1);
+	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
 	memcpy(result->str, tkstr.data, tkstr.len + 1);
 }
 
@@ -754,28 +763,28 @@ void parseNumber(tkWord* result) {
 	result->str = (char*)malloc(sizeof(char) * tkstr.len + 1);
 	memcpy(result->str, tkstr.data, tkstr.len + 1);
 
-	if (tkstr.len == 1)
-		result->code = CPP_CINT;  //const int 整型常量
+	if (tkstr.len == 2)
+		token = result->code = CPP_CINT;  //const int 整型常量
 	else {
 		int float_flag = NOT_FLOAT; // 先默认是非浮点数
 		int radix = 10; //默认是10进制
 		int index = 0;
-		result->code = CPP_N_DECIMAL;
+		token = result->code = CPP_N_DECIMAL;
 		if (tkstr.data[index] == '0') {
 			radix = 8;	//非浮点数，开头是0，则不可能是十进制
 			index++;
-			result->code = CPP_N_OCTAL;
+			token = result->code = CPP_N_OCTAL;
 			if ((tkstr.data[index] == 'x' || tkstr.data[index] == 'X') &&
 				(tkstr.data[index + 1] == '.' || isXDigit(tkstr.data[index + 1]))) {
 				radix = 16;
 				index++;
-				result->code = CPP_N_HEX;
+				token = result->code = CPP_N_HEX;
 			}//16进制
 			else if (tkstr.data[index] == 'b' || tkstr.data[index] == 'B' &&
 				(tkstr.data[index + 1] == '0' || tkstr.data[index + 1] == '1')) {
 				radix = 2;
 				index++;
-				result->code = CPP_N_BINARY;
+				token = result->code = CPP_N_BINARY;
 			}//2进制
 		}//只处理了1开头的数字的第一位
 
@@ -811,7 +820,7 @@ void parseNumber(tkWord* result) {
 					} while (isDigit(tkstr.data[index]));
 				}
 			}
-			result->code = CPP_CFLOAT;
+			token = result->code = CPP_CFLOAT;
 		}
 		else {
 			//如果是浮点数，就不分进制了，都是CPP_CFLOAT
@@ -831,16 +840,17 @@ void lexerDirect() {
 		break;
 		//....
 
-	case ' ': case '\t': case '\f': case '\v': case '\0':
+	case ' ': case '\t': case '\f': case '\v': case '\0': case '\r':
 		skipWhiteSpace();
 		buffer->cur--;
 		token = -1;
 		break;
 		//....
 
-	case '\'': case '"':
+	case '\'': case '\"':
 		parseString(&result);
 		token = result.code;
+		
 		break;
 		//....
 
@@ -906,6 +916,7 @@ void lexerDirect() {
 		result.code = CPP_NUMBER;
 		token = result.code;
 		parseNumber(&result);
+		buffer->cur--;
 	}
 	break;
 
@@ -1099,6 +1110,10 @@ void lexerDirect() {
 	case '{': token = result.code = CPP_OPEN_BRACE; break;
 	case '}': token = result.code = CPP_CLOSE_BRACE; break;
 	case ';': token = result.code = CPP_SEMICOLON; break;
+
+	case -1:
+		over = true;
+		break;
 
 	default:
 		break;
