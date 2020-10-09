@@ -1,4 +1,6 @@
 .vs/
+/.vs/
+/vs/
 /*.sln
 CppTexer/don'tuse
 CppTexer/*.vcxproj
