@@ -9,11 +9,64 @@ using namespace std;
 void lexerInit() {
 	tkWord* temp;
 	static tkWord keywords[] = {
-		{CPP_NOT,	NULL,	(char *)"!",	NULL,	NULL },//!
-		{CPP_PLUS,	NULL,	(char*)"+",	NULL,	NULL },//+
-		{CPP_MINUS,	NULL,	(char*)"-",	NULL,	NULL },//-
-		{CPP_MULT,	NULL,	(char*)"*",	NULL,	NULL },//*
-		{CPP_DIV, NULL, (char*)"/", NULL, NULL },// /
+
+		{ CPP_NAME,	NULL,	(char*)"identifier",	NULL,	NULL },		//definator
+		{ KW_CHAR,	NULL,	(char*)"char",	NULL,	NULL },			//char keyword
+		{ KW_DOUBLE,	NULL,	(char*)"double",	NULL,	NULL },			//double keyword
+		{ KW_FLOAT,	NULL,	(char*)"float",	NULL,	NULL },			//float keyword
+		{ KW_INT,	NULL,	(char*)"int",	NULL,	NULL },				//int keyword
+		{ KW_LONG,	NULL,	(char*)"long",	NULL,	NULL },		//long keyword
+		{ KW_BOOL,	NULL,	(char*)"bool",	NULL,	NULL },		//bool keyword
+		{ KW_REGISTER,	NULL,	(char*)"register",	NULL,	NULL },		//register keyword
+		{ KW_SHORT,	NULL,	(char*)"short",	NULL,	NULL },		//short keyword
+		{ KW_SIGNED,	NULL,	(char*)"signed",	NULL,	NULL },		//signed keyword
+		{ KW_STATIC,	NULL,	(char*)"static",	NULL,	NULL },		//static keyword
+		{ KW_STRUCT,	NULL,	(char*)"struct",	NULL,	NULL },		//struct keyword
+		{ KW_UNSIGNED,	NULL,	(char*)"unsigned",	NULL,	NULL },		//unsigned keyword
+		{ KW_VOID,	NULL,	(char*)"void",	NULL,	NULL },		//void keyword
+		{ KW_CHAR_STAR,	NULL,	(char*)"char*",	NULL,	NULL },		//char* keyword
+		{ KW_DOUBLE_STAR,	NULL,	(char*)"double*",	NULL,	NULL },		//double* keyword
+		{ KW_FLOAT_STAR,	NULL,	(char*)"float*",	NULL,	NULL },		//float* keyword
+		{ KW_INT_STAR,		NULL,	(char*)"int*",	NULL,	NULL },		//int* keyword
+		{ KW_LONG_STAR,		NULL,	(char*)"long*",	NULL,	NULL },	//long* keyword
+		{ KW_BOOL_STAR,		NULL,	(char*)"bool",	NULL,	NULL },	//bool* keyword
+		{ KW_SHORT_STAR,	NULL,	(char*)"short*",	NULL,	NULL },		//short* keyword
+		{ KW_VOID_STAR,		NULL,	(char*)"void*",	NULL,	NULL },//void* keyword
+		{ KW_VOLATILE,	NULL,	(char*)"volatile",	NULL,	NULL },	//volatile keyword
+
+		{ KW_IF,	NULL,	(char*)"if",	NULL,	NULL },				//if keyword
+		{ KW_ELSE,	NULL,	(char*)"else",	NULL,	NULL },			//else keyword
+		{ KW_FOR, NULL, (char*)"for", NULL, NULL },				//for keyword
+		{ KW_CONTINUE, NULL, (char*)"continue", NULL, NULL },		//continue keyword
+		{ KW_BREAK, NULL, (char*)"break", NULL, NULL },			//break keyword
+		{ KW_RETURN, NULL, (char*)"return", NULL, NULL },			//return keyword
+		{ KW_SIZEOF, NULL, (char*)"sizeof", NULL, NULL },			//sizeof keyword
+		{ KW_WHILE, NULL, (char*)"while", NULL, NULL },			//while keyword
+		{ KW_AUTO, NULL, (char*)"auto", NULL, NULL },			//auto keyword
+		{ KW_CASE, NULL, (char*)"case", NULL, NULL },			//case keyword
+		{ KW_CONST, NULL, (char*)"const", NULL, NULL },			//const keyword
+		{ KW_DEFAULT, NULL, (char*)"default", NULL, NULL },			//default keyword
+		{ KW_DO, NULL, (char*)"do", NULL, NULL },				//do keyword
+		{ KW_ENUM, NULL, (char*)"enum", NULL, NULL },			//enum keyword
+		{ KW_EXTERN, NULL, (char*)"extern", NULL, NULL },			//extern keyword
+		{ KW_GOTO, NULL, (char*)"goto", NULL, NULL },			//goto keyword
+		{ KW_SWITCH, NULL, (char*)"switch", NULL, NULL },			//switch keyword
+		{ KW_TYPEDEF, NULL, (char*)"typedef", NULL, NULL },			//typedef keyword,
+		{ KW_UNION, NULL, (char*)"union", NULL, NULL },			//union keyword
+		{ KW_NULL, NULL, (char*)"NULL", NULL, NULL },			//NULL keyword
+
+		{ PREV_WHITE,	NULL,	(char*)"white space"	,NULL,	NULL },			//white space 
+		{ CPP_ELLIPSIS,	NULL,	(char*)"...",		NULL,	NULL },	//...
+
+		{ CPP_EOF,	NULL,	(char*)"eof",	NULL,	NULL },		//end of file
+
+		//运算符
+		{ CPP_OPERA,		NULL,	(char*)"operator",		NULL,	NULL },	//operator
+		{ CPP_NOT,	NULL,	(char*)"!",	NULL,	NULL },//!
+		{ CPP_PLUS,	NULL,	(char*)"+",	NULL,	NULL },//+
+		{ CPP_MINUS,	NULL,	(char*)"-",	NULL,	NULL },//-
+		{ CPP_MULT,	NULL,	(char*)"*",	NULL,	NULL },//*
+		{ CPP_DIV, NULL, (char*)"/", NULL, NULL },// /
 		{ CPP_MOD,	NULL,	(char*)"%",	NULL,	NULL },//%
 		{ CPP_PLUS_EQ,	NULL,	(char*)"+=",	NULL,	NULL },//+=
 		{ CPP_MINUS_EQ,	NULL,	(char*)"-=",	NULL,	NULL },//-=
@@ -44,6 +97,9 @@ void lexerInit() {
 		{ CPP_OR_EQ,		NULL,	(char*)"|=",	NULL,	NULL },//|=
 		{ CPP_XOR,	NULL,	(char*)"^",	NULL,	NULL },//^
 		{ CPP_XOR_EQ,	NULL,	(char*)"^=",	NULL,	NULL },	//^=
+
+		//界符
+		{ CPP_BOUNDARY,	NULL,	(char*)"delimiter",	NULL,	NULL },	//boundary
 		{ CPP_OPEN_PAREN,	NULL,	(char*)"(",	NULL,	NULL },//(
 		{ CPP_CLOSE_PAREN,	NULL,	(char*)")",	NULL,	NULL },//)
 		{ CPP_OPEN_SQUARE,	NULL,	(char*)"[",	NULL,	NULL },//[
@@ -59,56 +115,13 @@ void lexerInit() {
 		{ CPP_COLON,		NULL,	(char*)":",	NULL,	NULL },			//:
 		{ CPP_COLON_COLON,	NULL,	(char*)"::",	NULL,	NULL },//::
 
-		{ CPP_NAME,	NULL,	(char*)"identifier",	NULL,	NULL },		//definator
+
+		//常量
 		{ CPP_NUMBER,	NULL,	(char*)"number",	NULL,	NULL },			//number
-		{ CPP_BOUNDARY,	NULL,	(char*)"delimiter",	NULL,	NULL },	//boundary
-		{ CPP_OPERA,		NULL,	(char*)"operator",		NULL,	NULL },	//operator
-		{ CPP_ELLIPSIS,	NULL,	(char*)"...",		NULL,	NULL },	//...
-
-		{ CPP_EOF,	NULL,	(char*)"eof",	NULL,	NULL },		//end of file
-
 		{ CPP_CINT,	NULL,	(char*)"const int",	NULL,	NULL },		//const int
 		{ CPP_CFLOAT,	NULL,	(char*)"const float",	NULL,	NULL},	//const float
 		{ CPP_CCHAR,	NULL,	(char*)"const char",	NULL,	NULL },		//const char
 		{ CPP_CSTR,	NULL,	(char*)"const char*",	NULL,	NULL },		//const char*
-
-		{ KW_CHAR,	NULL,	(char*)"char",	NULL,	NULL },			//char keyword
-		{ KW_DOUBLE,	NULL,	(char*)"double",	NULL,	NULL },			//double keyword
-		{ KW_FLOAT,	NULL,	(char*)"float",	NULL,	NULL },			//float keyword
-		{ KW_INT,	NULL,	(char*)"int",	NULL,	NULL },				//int keyword
-		{ KW_LONG,	NULL,	(char*)"long",	NULL,	NULL },		//long keyword
-		{ KW_REGISTER,	NULL,	(char*)"register",	NULL,	NULL },		//register keyword
-		{ KW_SHORT,	NULL,	(char*)"short",	NULL,	NULL },		//short keyword
-		{ KW_SIGNED,	NULL,	(char*)"signed",	NULL,	NULL },		//signed keyword
-		{ KW_STATIC,	NULL,	(char*)"static",	NULL,	NULL },		//static keyword
-		{ KW_STRUCT,	NULL,	(char*)"struct",	NULL,	NULL },		//struct keyword
-		{ KW_UNSIGNED,	NULL,	(char*)"unsigned",	NULL,	NULL },		//unsigned keyword
-		{ KW_VOID,	NULL,	(char*)"void",	NULL,	NULL },		//void keyword
-		{ KW_VOLATILE,	NULL,	(char*)"volatile",	NULL,	NULL },	//volatile keyword
-
-		{ KW_IF,	NULL,	(char*)"if",	NULL,	NULL },				//if keyword
-		{ KW_ELSE,	NULL,	(char*)"else",	NULL,	NULL },			//else keyword
-		{ KW_FOR, NULL, (char*)"for", NULL, NULL },				//for keyword
-		{ KW_CONTINUE, NULL, (char*)"continue", NULL, NULL },		//continue keyword
-		{ KW_BREAK, NULL, (char*)"break", NULL, NULL },			//break keyword
-		{ KW_RETURN, NULL, (char*)"return", NULL, NULL },			//return keyword
-		{ KW_SIZEOF, NULL, (char*)"sizeof", NULL, NULL },			//sizeof keyword
-		{ KW_WHILE, NULL, (char*)"while", NULL, NULL },			//while keyword
-		{ KW_AUTO, NULL, (char*)"auto", NULL, NULL },			//auto keyword
-		{ KW_CASE, NULL, (char*)"case", NULL, NULL },			//case keyword
-		{ KW_CONST, NULL, (char*)"const", NULL, NULL },			//const keyword
-		{ KW_DEFAULT, NULL, (char*)"default", NULL, NULL },			//default keyword
-		{ KW_DO, NULL, (char*)"do", NULL, NULL },				//do keyword
-		{ KW_ENUM, NULL, (char*)"enum", NULL, NULL },			//enum keyword
-		{ KW_EXTERN, NULL, (char*)"extern", NULL, NULL },			//extern keyword
-		{ KW_GOTO, NULL, (char*)"goto", NULL, NULL },			//goto keyword
-		{ KW_SWITCH, NULL, (char*)"switch", NULL, NULL },			//switch keyword
-		{ KW_TYPEDEF, NULL, (char*)"typedef", NULL, NULL },			//typedef keyword,
-		{ KW_UNION, NULL, (char*)"union", NULL, NULL },			//union keyword
-		{ KW_NULL, NULL, (char*)"null", NULL, NULL },			//null keyword
-
-		{ PREV_WHITE,	NULL,	(char*)"white space"	,NULL,	NULL },			//white space 
-
 
 		{ NOT_FLOAT,	NULL,	(char*)"not float",	NULL,	NULL },			//not a float number
 		{ AFTER_POINT,	NULL,	(char*)"get the mark of float",	NULL,	NULL },		//already find the mark of the float number
@@ -119,7 +132,8 @@ void lexerInit() {
 		{ CPP_N_BINARY,	NULL,	(char*)"bin",	NULL,	NULL },	//binary number
 		{ CPP_N_OCTAL,	NULL,	(char*)"oct",	NULL,	NULL },		//octal number
 
-		{CPP_IDENT,	NULL,	(char*)"identifier",	NULL,	NULL}			//identifier
+		//标识符
+		{ CPP_IDENT,	NULL,	(char*)"identifier",	NULL,	NULL}			//identifier
 	};
 	
 	myDynArrayInit(&tkTable, 8);
@@ -133,7 +147,7 @@ void lexerInit() {
 }
 
 void lexerCleanup() {
-	printf("\n tkTable length = %d", tkTable.len);
+	printf("\ntkTable length = %d\n", tkTable.len);
 //	for (int i = 0; i < tkTable.len; i++) {
 //		free(tkTable.data[i]);
 //	}
@@ -168,6 +182,25 @@ void linkError(char* fmt, ...) {
 	va_end(ap);
 }
 
+void infoDisplay() {
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+	printf("\nline of code : %d\n", lineCount);
+/*
+	for (int i = 0; i < tokenCount; i++) {
+		printf("<%s, %s>\n", tokenStream[i].first, (char *)tokenStream[i].second);
+	}
+*/
+	printf("\n定义符 %d\n", definatioinCount);
+	printf("界符 %d\n", boundaryCount);
+	printf("运算符 %d\n", operatorCount);
+	printf("常量 %d\n", constCount);
+	printf("标识符 %d\n", identifierCount);
+
+	printf("总共 %d\n", tokenCount);
+}
+
 int main(int argc, char **argv) {
 	fin = fopen(argv[1], "rb");
 	filename = (char*)malloc(sizeof(char) * strlen(argv[1])+1);
@@ -177,14 +210,14 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	
-	lineCount = 0;
+	lineCount = 1;
 	
 	lexerInit();//符号表初始化，缓冲区初始化，缓冲区从文件中读入第一行
 
 	ch = getChar();//从缓冲区读第一个字符
 
 	preprocess();//预处理，去掉注释
-
+	
 	while(ch!=-1) {
 		lexerDirect();
 		if(token>=0)
@@ -198,8 +231,8 @@ int main(int argc, char **argv) {
 			}
 		}*/
 	}
-	printf("\n line of code : %d\n", lineCount);
 
+	infoDisplay();
 	lexerCleanup();
 }
 

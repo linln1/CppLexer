@@ -9,13 +9,70 @@
 #include <malloc.h>
 #include <stdint.h>
 #include <handleapi.h>
+#include <map>
+#include <utility>
 #define MAXKEY 1024
 #define INITSIZE 8
-#define BUFFER_MAX 50
+#define BUFFER_MAX 256
 
+using namespace std;
 
 //some structure
 enum eTokenCode {
+
+	//定义符
+	CPP_NAME,			//definator
+	KW_CHAR,			//char keyword
+	KW_DOUBLE,			//double keyword
+	KW_FLOAT,			//float keyword
+	KW_INT,				//int keyword
+	KW_LONG,			//long keyword
+	KW_BOOL,			//bool keyword
+	KW_REGISTER,		//register keyword
+	KW_SHORT,			//short keyword
+	KW_SIGNED,			//signed keyword
+	KW_STATIC,			//static keyword
+	KW_STRUCT,			//struct keyword
+	KW_UNSIGNED,		//unsigned keyword
+	KW_VOID,			//void keyword
+	KW_CHAR_STAR,		//char* keyword
+	KW_DOUBLE_STAR,			//double* keyword
+	KW_FLOAT_STAR,			//float* keyword
+	KW_INT_STAR,				//int* keyword
+	KW_LONG_STAR,			//long* keyword
+	KW_BOOL_STAR,			//bool* keyword
+	KW_SHORT_STAR,			//short* keyword
+	KW_VOID_STAR,		//void* keyword
+	KW_VOLATILE,		//volatile keyword
+
+	KW_IF,				//if keyword
+	KW_ELSE,			//else keyword
+	KW_FOR,				//for keyword
+	KW_CONTINUE,		//continue keyword
+	KW_BREAK,			//break keyword
+	KW_RETURN,			//return keyword
+	KW_SIZEOF,			//sizeof keyword
+	KW_WHILE,			//while keyword
+	KW_AUTO,			//auto keyword
+	KW_CASE,			//case keyword
+	KW_CONST,			//const keyword
+	KW_DEFAULT,			//default keyword
+	KW_DO,				//do keyword
+	KW_ENUM,			//enum keyword
+	KW_EXTERN,			//extern keyword
+	KW_GOTO,			//goto keyword
+	KW_SWITCH,			//switch keyword
+	KW_TYPEDEF,			//typedef keyword,
+	KW_UNION,			//union keyword
+	KW_NULL,			//null keyword
+
+	PREV_WHITE,			//white space 
+	CPP_ELLIPSIS,		//...
+
+	CPP_EOF,			//end of file
+
+	//运算符
+	CPP_OPERA,			//operator
 	CPP_NOT,	//!
 	CPP_PLUS,	//+
 	CPP_MINUS,	//-
@@ -51,6 +108,9 @@ enum eTokenCode {
 	CPP_OR_EQ,		//|=
 	CPP_XOR,		//^
 	CPP_XOR_EQ,		//^=
+
+	//界符
+	CPP_BOUNDARY,		//boundary
 	CPP_OPEN_PAREN,	//(
 	CPP_CLOSE_PAREN,	//)
 	CPP_OPEN_SQUARE,	//[
@@ -66,55 +126,12 @@ enum eTokenCode {
 	CPP_COLON,			//:
 	CPP_COLON_COLON,	//::
 
-	CPP_NAME,			//definator
+	//常量: 数值常量和字符常量
 	CPP_NUMBER,			//number
-	CPP_BOUNDARY,		//boundary
-	CPP_OPERA,			//operator
-	CPP_ELLIPSIS,		//...
-
-	CPP_EOF,			//end of file
-
 	CPP_CINT,			//const int
 	CPP_CFLOAT,			//const float
 	CPP_CCHAR,			//const char
 	CPP_CSTR,			//const char*
-
-	KW_CHAR,			//char keyword
-	KW_DOUBLE,			//double keyword
-	KW_FLOAT,			//float keyword
-	KW_INT,				//int keyword
-	KW_LONG,			//long keyword
-	KW_REGISTER,		//register keyword
-	KW_SHORT,			//short keyword
-	KW_SIGNED,			//signed keyword
-	KW_STATIC,			//static keyword
-	KW_STRUCT,			//struct keyword
-	KW_UNSIGNED,		//unsigned keyword
-	KW_VOID,			//void keyword
-	KW_VOLATILE,		//volatile keyword
-
-	KW_IF,				//if keyword
-	KW_ELSE,			//else keyword
-	KW_FOR,				//for keyword
-	KW_CONTINUE,		//continue keyword
-	KW_BREAK,			//break keyword
-	KW_RETURN,			//return keyword
-	KW_SIZEOF,			//sizeof keyword
-	KW_WHILE,			//while keyword
-	KW_AUTO,			//auto keyword
-	KW_CASE,			//case keyword
-	KW_CONST,			//const keyword
-	KW_DEFAULT,			//default keyword
-	KW_DO,				//do keyword
-	KW_ENUM,			//enum keyword
-	KW_EXTERN,			//extern keyword
-	KW_GOTO,			//goto keyword
-	KW_SWITCH,			//switch keyword
-	KW_TYPEDEF,			//typedef keyword,
-	KW_UNION,			//union keyword
-	KW_NULL,			//null keyword
-
-	PREV_WHITE,			//white space 
 
 	NOT_FLOAT,			//not a float number
 	AFTER_POINT,		//already find the mark of the float number
@@ -125,6 +142,7 @@ enum eTokenCode {
 	CPP_N_BINARY,		//binary number
 	CPP_N_OCTAL,		//octal number
 
+	//标识符
 	CPP_IDENT			//identifier
 };
 
@@ -185,16 +203,18 @@ int identifierCount = 0; //源代码标识符个数
 int definatioinCount = 0; //源代码定义符个数
 int boundaryCount = 0; //源代码界符个数
 int constCount = 0; //源代码常数个数
-int OperatorCount = 0; //源代码运算符个数
+int operatorCount = 0; //源代码运算符个数
+int tokenCount = 0;
 int token;
 bool over = false; //标志文件是否读完了
 char* filename;
+char* temp = (char *)malloc(sizeof(char) * 256);
 char ch;
 
 BUFFER* buffer = (BUFFER*)malloc(sizeof(BUFFER));
 
 FILE* fin;
-
+std::map<int, std::pair<char*, char*>> tokenStream;
 
 //elfHash(str->key) *tkHashTable[key] 是hash值一样的所有tkWord的链表
 //tkWord* tkHashTable[]  {code, *next, *str, symStruct, symIdentifier}
@@ -261,8 +281,8 @@ char getChar() {
 char* getTkstr(int v) {
 	if (v > tkTable.len)
 		return NULL;
-	if (v > CPP_IDENT || (v >= CPP_CINT && v <= CPP_CSTR) || (v >= NOT_FLOAT && v <= CPP_N_DECIMAL)) {
-		return tkstr.data;
+	if (v >= CPP_NUMBER) {
+		return (char *)tkstr.data;
 	}
 //	else if (v >= CPP_CINT && v < CPP_CSTR) {
 //		return tkstr.data;
@@ -387,16 +407,50 @@ void colorToken(int state) {
 	switch (state) {
 	case LEX_NORMAL:
 	{
-		if (token >= CPP_IDENT) //标识符后面的符号
-			SetConsoleTextAttribute(h, FOREGROUND_INTENSITY);
-		else if (token >= KW_CHAR) //定义符
+		if (token >= CPP_IDENT) //标识符
+			SetConsoleTextAttribute(h, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+		else if (token >= CPP_NUMBER) //常量
 			SetConsoleTextAttribute(h, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		else if (token >= CPP_CINT)	//常数
-			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_GREEN);
-		else //运算符和分界符
+		else if (token >= CPP_BOUNDARY)	//界符
 			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		else if (token >= CPP_OPERA)//运算符
+			SetConsoleTextAttribute(h, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+		else //定义符
+			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		p = (char*)malloc(sizeof(char) * 256);
 		p = getTkstr(token);
-		printf("%s", p);
+		//printf("%s", p);
+
+		if (token < CPP_OPERA) {
+			printf("<定义符, %s>", p);
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("定义符"), (char*)((tkWord*)tkTable.data[token])->str)));
+			//tokenStream[tokenCount++] = std::make_pair((char*)"定义符" , (char*)((tkWord*)tkTable.data[token])->str);
+			definatioinCount++;
+		}
+		else if (token < CPP_BOUNDARY) {
+			printf("<运算符, %s>", p);
+			operatorCount++;
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("运算符"), (char*)((tkWord*)tkTable.data[token])->str)));
+			//tokenStream[tokenCount++] = std::make_pair((char*)"运算符", (char*)((tkWord*)tkTable.data[token])->str);
+		}
+		else if (token < CPP_NUMBER) {
+			printf("<界符, %s>", p);
+			boundaryCount++;
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("界符"), (char*)((tkWord*)tkTable.data[token])->str)));
+			//tokenStream[tokenCount++] = std::make_pair((char*)"界符", (char*)((tkWord*)tkTable.data[token])->str);
+		}
+		else if (token < CPP_IDENT) {
+			printf("<常量, %s>", p);
+			constCount++;
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("常量"), (char*)tkstr.data)));
+			//tokenStream[tokenCount++] = std::make_pair((char*)"常量", (char*)tkstr.data);
+		}
+		else {
+			printf("<标识符, %s>", p);
+			identifierCount++;
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("标识符"), (char*)tkstr.data)));
+			//tokenStream[tokenCount++] = std::make_pair((char*)"标识符", (char*)tkstr.data);
+		}
 		break;
 	}
 	case LEX_SEP:
@@ -423,28 +477,25 @@ void skipWhiteSpace() {
 void parseComment() {
 	ch = getChar();
 	do {
-		do {
-			if (ch == '\n' || ch == '*' || ch == CPP_EOF)
-				break;
-			else
-				ch = getChar();
-		} while (1);
 		if (ch == '\n') {
+			printf("\n");
 			lineCount++;
 			ch = getChar();
 		}
-		else if (ch == '*') {
+		ch = getChar();
+	} while (ch!='*');
+
+	while (ch == '*') {
+		ch = getChar();
+		if (ch == '/') {
 			ch = getChar();
-			if (ch == '/') {
-				ch = getChar();
-				return;
-			}
+			break;
 		}
 		else {
-			error("no end of comment\n");
-			return;
+			ch = getChar();
 		}
-	} while (1);
+	}
+
 }
 
 void preprocess() {
@@ -566,7 +617,7 @@ int isXDigit(char c) {
 }
 
 int notDigit(char c) {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '*');
 }
 
 int ifNexIs(char c, eTokenCode A, eTokenCode B) {
@@ -600,14 +651,23 @@ void parseString(tkWord* result) {//常量不用加入符号表
 	char begin = ch;
 	ch = getChar();
 	for (;;) {
-		if (ch == begin) {
-			myDynStringChcat(&tkstr, ch);
-			break;
+		if (ch != '\\') {
+			if (ch == begin || (begin == '<' && ch == '>')) {
+				myDynStringChcat(&tkstr, ch);
+				break;
+			}
+			else {
+				myDynStringChcat(&tkstr, ch);
+				ch = getChar();
+			}
 		}
 		else {
 			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
+			myDynStringChcat(&tkstr, ch);
+			ch = getChar();
 		}
+
 /*
 		else if (ch == ' ') {
 			myDynStringChcat(&tkstr, ch);
@@ -729,7 +789,7 @@ void detachFileKeyWord(tkWord* result, int code) {
 					tkInsertIdentifier((char*)result->str);
 				}
 			}
-			getChar();
+			ch = getChar();
 		}
 	}
 }
@@ -859,6 +919,7 @@ void lexerDirect() {
 		char c = *buffer->cur;
 		if (c == '*') {
 			parseComment();
+			buffer->cur--;
 			//....
 		}
 		else if (c == '/') {//看看换行符前一个是不是\符号,如果是\符号，那他下一行还是注释
@@ -868,7 +929,8 @@ void lexerDirect() {
 			find = (char*)malloc(sizeof(char) * BUFFER_MAX);
 			find = strchr(buffer->data, '\\');
 			while (find) {
-				if (*(find + 1) == '\n') {
+				if ((*(find + 1) == '\r') && (*(find + 2) == '\n')) {
+					printf("\n");
 					nextLine();
 					find = strchr(buffer->data, '\\');
 				}
@@ -877,10 +939,21 @@ void lexerDirect() {
 				}
 				//*(find + 1) == '\n' ? nextLine() : [&]()->void{find = strchr(find, '\\');}
 			}
-			nextLine();
+			while ((!find) && ch != '\n' && ch != '\0') {
+				ch = getChar();
+			}
+			if (ch == '\n') {
+				lineCount++;
+				printf("\n");
+				token = -1;
+			}
+			if (ch == '\0') {
+				buffer->cur--;
+				token = -1;
+			}
 		}//看一下能不能和parseComment()合到一起
 		else if (c == '=') {
-			buffer->cur++;
+			ch = getChar();
 			buffer->startPtr = buffer->cur;
 			result.code = CPP_DIV_EQ;
 			token = result.code;
@@ -914,8 +987,8 @@ void lexerDirect() {
 	case '5': case '6': case '7': case '8': case '9':
 	{
 		result.code = CPP_NUMBER;
-		token = result.code;
 		parseNumber(&result);
+		token = result.code;
 		buffer->cur--;
 	}
 	break;
@@ -947,20 +1020,24 @@ void lexerDirect() {
 
 		//看看能否解析头文件
 	case '<':
-		token = CPP_LESS;
-		detachFileKeyWord(&result, CPP_LESS);//如果没有对应的> 说明他就是一个<符号，所以就可以让result.code = CPP_LESS
-		if (result.code != CPP_LESS)
-			break;
+		token = result.code = CPP_LESS;
 		if (*buffer->cur == '=') {
-			buffer->cur++;
+			ch = getChar();
 			result.code = CPP_LESS_EQ;
 			token = CPP_LESS_EQ;
 		}
 		else if (*buffer->cur == '<') {
-			buffer->cur++;
+			ch = getChar();
 			result.code = ifNexIs('=', CPP_LSHIFT_EQ, CPP_LSHIFT);
 			token = result.code;
 		}
+		else if (isDigit(*buffer->cur)) {
+			break;
+		}
+		else if(notDigit(*buffer->cur)){
+			parseString(&result);//如果没有对应的> 说明他就是一个<符号，所以就可以让result.code = CPP_LESS
+		}
+
 		//....
 		break;
 
@@ -968,12 +1045,12 @@ void lexerDirect() {
 		token = CPP_GREATER;
 		result.code = CPP_GREATER;
 		if (*buffer->cur == '=') {
-			buffer->cur++;
+			ch = getChar();
 			result.code = CPP_GREATER_EQ;
 			token = CPP_GREATER_EQ;
 		}
 		else if (*buffer->cur == '>') {
-			buffer->cur++;
+			ch = getChar();
 			result.code = ifNexIs('=', CPP_RSHIFT_EQ, CPP_RSHIFT);
 			token = result.code;
 		}
@@ -982,7 +1059,7 @@ void lexerDirect() {
 		//....
 
 	case '+':
-		result.code = CPP_PLUS;
+		token = result.code = CPP_PLUS;
 		if (*buffer->cur == '+')
 			ch = getChar(), token = result.code = CPP_PLUSPLUS;
 		if (*buffer->cur == '=')
@@ -991,7 +1068,7 @@ void lexerDirect() {
 		break;
 
 	case '&':
-		result.code = CPP_ARITH_AND;
+		token = result.code = CPP_ARITH_AND;
 		if (*buffer->cur == '&')
 			ch = getChar(), token = result.code = CPP_LOGIC_AND;
 		if (*buffer->cur == '=')
@@ -1000,11 +1077,11 @@ void lexerDirect() {
 		break;
 
 	case '|':
-		result.code = CPP_ARITH_OR;
+		token = result.code = CPP_ARITH_OR;
 		if (*buffer->cur == '|')
-			buffer->cur++, token = result.code = CPP_LOGIC_OR;
+			ch = getChar(), token = result.code = CPP_LOGIC_OR;
 		if (*buffer->cur == '=')
-			buffer->cur++, token = result.code = CPP_OR_EQ;
+			ch = getChar(), token = result.code = CPP_OR_EQ;
 		//....
 		break;
 
@@ -1012,22 +1089,22 @@ void lexerDirect() {
 		result.code = CPP_MINUS;
 		token = CPP_MINUS;
 		if (*buffer->cur == '>') {
-			buffer->cur++;
+			ch = getChar();
 			result.code = CPP_PTR;
 			token = CPP_PTR;
 			if (*buffer->cur == '*') {
-				buffer->cur++;
+				ch = getChar();
 				result.code = CPP_PTR_STAR;
 				token = CPP_PTR_STAR;
 			}
 		}
 		else if (*buffer->cur == '-') {
-			buffer->cur++;
+			ch = getChar();
 			result.code = CPP_MINUSMINUS;
 			token = CPP_MINUSMINUS;
 		}
 		else if (*buffer->cur == '=') {
-			buffer->cur++;
+			ch = getChar();
 			token = CPP_MINUS_EQ;
 			result.code = CPP_MINUS_EQ;
 		}
@@ -1037,7 +1114,7 @@ void lexerDirect() {
 		result.code = CPP_MOD;
 		token = CPP_MOD;
 		if (*buffer->cur == '=')
-			buffer->cur++, token = result.code = CPP_MOD_EQ;
+			ch = getChar(), token = result.code = CPP_MOD_EQ;
 		//....
 		break;
 
@@ -1045,34 +1122,34 @@ void lexerDirect() {
 		result.code = CPP_MULT;
 		token = CPP_MULT;
 		if (*buffer->cur == '=')
-			buffer->cur++, token = result.code = CPP_MULT_EQ;
+			ch = getChar(), token = result.code = CPP_MULT_EQ;
 		//....
 		break;
 
 	case '=':
 		token = result.code = CPP_ASSIGN;
 		if (*buffer->cur == '=')
-			buffer->cur++, token = result.code = CPP_EQ;
+			ch = getChar(), token = result.code = CPP_EQ;
 		//....
 		break;
 
 	case '!':
 		token = result.code = CPP_NOT;
 		if (*buffer->cur == '=')
-			buffer->cur++, token = result.code = CPP_NOT_EQ;
+			ch = getChar(), token = result.code = CPP_NOT_EQ;
 		//....
 		break;
 
 	case '^':
 		token = result.code = CPP_XOR;
 		if (*buffer->cur == '=')
-			buffer->cur++, token = result.code = CPP_MOD_EQ;
+			ch = getChar(), token = result.code = CPP_MOD_EQ;
 		//....
 		break;
 
-
 	case '.':
 		//...
+		token = result.code = CPP_DOT;
 		if (isDigit(*buffer->cur)) {
 			//....
 			token = result.code = CPP_NUMBER;
@@ -1087,7 +1164,7 @@ void lexerDirect() {
 	case '#':
 		token = result.code = CPP_HASH;
 		if (*buffer->cur == '#') {
-			buffer->cur++;
+			ch = getChar();
 			token = result.code = CPP_PASTE;
 		}
 		break;
@@ -1095,7 +1172,7 @@ void lexerDirect() {
 	case ':':
 		token = result.code = CPP_COLON;
 		if (*buffer->cur == ':') {
-			buffer->cur++;
+			ch = getChar();
 			token = result.code = CPP_COLON_COLON;
 		}
 		break;
