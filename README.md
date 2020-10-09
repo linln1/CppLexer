@@ -12,29 +12,30 @@
 
 # **Five BIG** 
     types of tokens in total, each of them is printed in different color
-## . \<identifier> 
-## . \<definator>
-## . \<constant>
-## . \<boundary>
-## . \<operator>
+## &nbsp; < *identifier* > 
+## &nbsp; < *definator* >
+## &nbsp; < *constant* >
+## &nbsp; < *boundary* >
+## &nbsp; < *operator* >
 
 # **100 small**
      types of tokens in details
-## which include commen Keywords in C, all the notations ~!@#$%^&*()_+{}:"<>?[]\;',./ , different kinds of numbers such as float, double or expon numbers, constant string and so on...
+## *which include commen Keywords in C, all the notations ~!@#$%^&*()_+{}:"<>?[]\;',./ , different kinds of numbers such as float, double or expon numbers, constant string and so on...*
 
-## The first test example's result is as follows:
+## *The first test example's result is as follows:*
 ## ![example1](https://github.com/linln1/CppTexer/blob/master/example1.png)
 
-## The second test example's result is as follows:
+## *The second test example's result is as follows:*
 ## ![example2](https://github.com/linln1/CppTexer/blob/master/example2.png)
 
-## The third test example's result is as follows:
+## *The third test example's result is as follows:*
 ## ![example3](https://github.com/linln1/CppTexer/blob/master/example3.png)
 
 
 ## *Implementation Details::*
 
 ### Global variable
+    '''
     + int wordCount = 0; // 源代码单词数
     + int charCount = 0; // 源代码字符数
     + int lineCount = 0; // 源代码行数
@@ -59,8 +60,10 @@
     + tkWord* tkHashTable[MAXKEY];		//HashTable 
     + dynString tkstr;
     + dynString sourcestr;
-### Use Structure are as follows:
+    '''
 
+### Use Structure are as follows:
+    ```
     - TkWord
         '
             struct TkWord {
@@ -116,3 +119,4 @@
                 LEX_SEP,
             };
         '
+    ```
