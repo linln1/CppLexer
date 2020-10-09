@@ -1,5 +1,5 @@
-/.vs
-*.sln
-/CppTexer/don'tuse
-/CppTexer/*.vcxproj
-/CppTexer/*.filters
+.vs/
+/*.sln
+CppTexer/don'tuse
+CppTexer/*.vcxproj
+CppTexer/*.filters
