@@ -54,6 +54,10 @@ void lexerInit() {
 		{ KW_TYPEDEF, NULL, (char*)"typedef", NULL, NULL },			//typedef keyword,
 		{ KW_UNION, NULL, (char*)"union", NULL, NULL },			//union keyword
 		{ KW_NULL, NULL, (char*)"NULL", NULL, NULL },			//NULL keyword
+		{ kW_B_TRUE,	NULL,	(char*)"TRUE",	NULL,	NULL },		//True keyword
+		{ KW_B_FALSE,	NULL,	(char*)"FALSE",	NULL,	NULL },		//False keyword
+		{ KW_L_TRUE,	NULL,	(char*)"true",	NULL,	NULL },		//true keyword
+		{ KW_L_FALSE,	NULL,	(char*)"false",	NULL,	NULL },		//false keyword
 
 		{ PREV_WHITE,	NULL,	(char*)"white space"	,NULL,	NULL },			//white space 
 		{ CPP_ELLIPSIS,	NULL,	(char*)"...",		NULL,	NULL },	//...
@@ -186,6 +190,16 @@ void infoDisplay() {
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
+	printf("\n");
+	int errorCount = 0;
+	for (int i = 0; i < lexError.size(); i++) {
+		for (int j = 0; j < lexError[i].staticInfo.size(); j++) {
+			errorCount++;
+			printf("%d Compile Error: <line:%d, col:%d>", errorCount,  lexError[i].staticInfo[j].line, lexError[i].staticInfo[j].col);
+			cout << lexError[i].staticInfo[j].errorInfo <<endl;
+		}
+	}
+	
 	printf("\nline of code : %d\n", lineCount);
 /*
 	for (int i = 0; i < tokenCount; i++) {
@@ -199,6 +213,7 @@ void infoDisplay() {
 	printf("标识符 %d\n", identifierCount);
 
 	printf("总共 %d\n", tokenCount);
+
 }
 
 int main(int argc, char **argv) {
@@ -213,8 +228,6 @@ int main(int argc, char **argv) {
 	lineCount = 1;
 	
 	lexerInit();//符号表初始化，缓冲区初始化，缓冲区从文件中读入第一行
-
-	ch = getChar();//从缓冲区读第一个字符
 
 	preprocess();//预处理，去掉注释
 	

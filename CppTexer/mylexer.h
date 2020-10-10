@@ -11,9 +11,13 @@
 #include <handleapi.h>
 #include <map>
 #include <utility>
+#include <string.h>
+#include <vector>
+#include <string>
 #define MAXKEY 1024
 #define INITSIZE 8
 #define BUFFER_MAX 256
+
 
 using namespace std;
 
@@ -65,7 +69,11 @@ enum eTokenCode {
 	KW_TYPEDEF,			//typedef keyword,
 	KW_UNION,			//union keyword
 	KW_NULL,			//null keyword
-
+	kW_B_TRUE,			//True keyword
+	KW_B_FALSE,			//False keyword
+	KW_L_TRUE,			//true keyword
+	KW_L_FALSE,			//false keyword
+	
 	PREV_WHITE,			//white space 
 	CPP_ELLIPSIS,		//...
 
@@ -175,6 +183,22 @@ typedef struct BUFFER{
 	char* cur = (char *)malloc(sizeof(char));//forwardPtr;
 }BUFFER;
 
+typedef struct ErrorInfo {
+	int line;
+	int col;
+	string errorInfo;
+}errorInfo;
+
+typedef struct StaticOnLine {
+	int charaCount = 0;
+	int definatorCount = 0;
+	int identificatorCount = 0;
+	int boundaryCount = 0;
+	int operatorCount = 0;
+	int constCount = 0;
+	vector<errorInfo> staticInfo;
+}staticOnLine;
+
 // some error handler structure
 enum errorLevel {
 	CPP_WARNING,
@@ -204,9 +228,20 @@ int definatioinCount = 0; //源代码定义符个数
 int boundaryCount = 0; //源代码界符个数
 int constCount = 0; //源代码常数个数
 int operatorCount = 0; //源代码运算符个数
-int tokenCount = 0;
+int tokenCount = 0;//源代码token数
+staticOnLine curLine;
+
 int token;
 bool over = false; //标志文件是否读完了
+
+//
+int symMatching = 0;
+int parenMatching = 0;
+int squareMatching = 0;
+int braceMatching = 0;
+int angleMatching = 0;
+
+
 char* filename;
 char* temp = (char *)malloc(sizeof(char) * 256);
 char ch;
@@ -224,6 +259,10 @@ tkWord* tkHashTable[MAXKEY];		//HashTable
 
 dynString tkstr;
 dynString sourcestr;
+
+int errorCount = 0;
+vector<staticOnLine> lexError;
+
 
 //some error handler function
 void exceptionHandle(int stage, int level, const char* fmt, va_list ap) {
@@ -254,13 +293,30 @@ void error(const char* fmt, ...) {
 char getChar() {
 	ch = *(buffer->cur);
 	//cur指针指向缓冲区末尾 或者 cur指针指向的内容是'\n'，buffer要读下一行或者读当前行下一部分
-
+	charCount++;
+	curLine.charaCount++;
 	//buffer要读下一行(部分)
 	if (ch == '\n') {
 		//printf("\n");
+		staticOnLine temp;
+		temp.boundaryCount = curLine.boundaryCount;
+		temp.charaCount = curLine.charaCount;
+		temp.definatorCount = curLine.definatorCount;
+		temp.identificatorCount = curLine.identificatorCount;
+		temp.operatorCount = curLine.operatorCount;
+		temp.staticInfo = curLine.staticInfo;
+
+		lexError.push_back(temp);
 		fgets(buffer->data, BUFFER_MAX, fin);//读取文件下一行,读取BUFFER_MAX个字符或者读取到'\n'时停止
 		buffer->startPtr = &buffer->data[0];//当前单词已经结束，新的单词开始
 		buffer->cur = &buffer->data[0];
+
+		curLine.boundaryCount = 0;
+		curLine.charaCount = 0;
+		curLine.definatorCount = 0;
+		curLine.identificatorCount;
+		curLine.operatorCount = 0;
+		curLine.staticInfo = vector<errorInfo>{};
 	}
 	else if(buffer->cur == &buffer->data[BUFFER_MAX]){//当前指针已经读完该缓冲区里面的全部内容，但是仍未遇到换行符，所以应该接着读这一行
 		fgets(buffer->data, BUFFER_MAX, fin);
@@ -284,11 +340,7 @@ char* getTkstr(int v) {
 	if (v >= CPP_NUMBER) {
 		return (char *)tkstr.data;
 	}
-//	else if (v >= CPP_CINT && v < CPP_CSTR) {
-//		return tkstr.data;
-//	}
-//	else
-		return (char*)((tkWord*)tkTable.data[v])->str;
+	return (char*)((tkWord*)tkTable.data[v])->str;
 }
 
 void myDynStringInit(dynString* strP, int initSize) {
@@ -476,29 +528,31 @@ void skipWhiteSpace() {
 
 void parseComment() {
 	ch = getChar();
+	int end = 0;
 	do {
-		if (ch == '\n') {
-			printf("\n");
-			lineCount++;
+		do {
+			if (ch == '\n') {
+				printf("\n");
+				lineCount++;
+			}
 			ch = getChar();
-		}
-		ch = getChar();
-	} while (ch!='*');
+		} while (ch != '*');
 
-	while (ch == '*') {
-		ch = getChar();
-		if (ch == '/') {
+		while (ch == '*') {
 			ch = getChar();
-			break;
+			if (ch == '/') {
+				end = 1;
+				break;
+			}
+			else {
+				ch = getChar();
+			}
 		}
-		else {
-			ch = getChar();
-		}
-	}
-
+	}while(end == 0);
 }
 
 void preprocess() {
+	ch = getChar();
 	while (1) {
 		if (ch == ' ' || ch == '\t' || ch == '\r')
 			skipWhiteSpace();
@@ -506,6 +560,7 @@ void preprocess() {
 			ch = getChar();
 			if (ch == '*') {
 				parseComment();
+				break;
 			}
 			else {
 				ungetc(ch, fin);
@@ -516,6 +571,7 @@ void preprocess() {
 		else
 			break;
 	}
+	//ch = getChar();
 }
 
 //malloc func
@@ -601,13 +657,6 @@ void linker(tkWord* ref) {
 
 }//将来调用链接器，连接#include 的头文件
 
-void nextLine() {
-	//get the next line of fin and put it into buffer;
-	fgets(buffer->data, BUFFER_MAX, fin);//取得缓冲区大小的当前行的数据
-	buffer->cur = &buffer->data[0];
-	buffer->startPtr = buffer->cur;
-}
-
 int isDigit(char c) {
 	return c >= '0' && c <= '9';
 }
@@ -628,6 +677,70 @@ int ifNexIs(char c, eTokenCode A, eTokenCode B) {
 	return B;
 }
 
+void noMatchingHandler() {
+	if (parenMatching > 0) {
+		//need more '(' or less ')' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more '(' or less ')' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+	else if (parenMatching < 0) {
+		//need more ')' or less '(' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more ')' or less '(' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+
+	if(squareMatching > 0) {
+		//need more '[' or less ']' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more '[' or less ']' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+	else if (squareMatching < 0) {
+		//need more ']' or less '[' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more ']' or less '[' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+
+
+/*	//关键是{和}一般都不在一行,所以还需要单独处理
+	if (braceMatching > 0) {
+		//need more '{' or less '}' in line %dth, Col %dth, lineCount, charaCount
+	}
+	else if (braceMatching < 0) {
+		//need more '}' or less '{' in line %dth, Col %dth, lineCount, charaCount
+	}
+*/ 
+
+
+	if (angleMatching > 0) {
+		//nedd more '<' or less '>' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "nedd more '<' or less '>' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+	else if (angleMatching < 0) {
+		//need more '>' or less '<' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more '>' or less '<' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+}
+
 void parseIdentifier(tkWord* result) {//
 	myDynStringReset(&tkstr);
 	myDynStringChcat(&tkstr, ch);
@@ -635,6 +748,14 @@ void parseIdentifier(tkWord* result) {//
 	while (notDigit(ch) || isDigit(ch)) {
 		myDynStringChcat(&tkstr, ch);
 		ch = getChar();
+	}
+	if (ch != ' ' || ch != '\t' || ch != '\r') {
+		//标识符错误
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "invalid identifier defination";
+		curLine.staticInfo.push_back(curError);
 	}
 	myDynStringChcat(&tkstr, '\0');
 	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
@@ -653,10 +774,19 @@ void parseString(tkWord* result) {//常量不用加入符号表
 	for (;;) {
 		if (ch != '\\') {
 			if (ch == begin || (begin == '<' && ch == '>')) {
+				if(ch == '>')
+					angleMatching--;
 				myDynStringChcat(&tkstr, ch);
 				break;
 			}
-			else {
+			else if(ch == '\n'){
+				errorInfo curError;
+				curError.line = lineCount;
+				curError.col = curLine.charaCount;
+				curError.errorInfo = "can't find \" or \' to end a const string";
+				curLine.staticInfo.push_back(curError);
+			}
+			else{
 				myDynStringChcat(&tkstr, ch);
 				ch = getChar();
 			}
@@ -731,91 +861,96 @@ void parseString(tkWord* result) {//常量不用加入符号表
 	token = result->code = CPP_CCHAR;
 }
 
-void parseFileName(tkWord* result) {
-	myDynStringReset(&tkstr);
-	do {
-		myDynStringChcat(&tkstr, ch);
-	} while (notDigit(ch));
-	if (ch == '.') {
-		myDynStringChcat(&tkstr, ch);
-		ch = getChar();
-		if (ch == 'h' || ch == 'c') {
-			myDynStringChcat(&tkstr, ch);
-			ch = getChar();
-			if (ch == 'p') {
-				ch = getChar();
-				if (ch == 'p') {
-					myDynStringChcat(&tkstr, ch);
-					myDynStringChcat(&tkstr, ch);
-				}
-			}
-		}
-	}
-	myDynStringChcat(&tkstr, '\0');
-	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
-	memcpy(result->str, tkstr.data, tkstr.len + 1);
-}
 
-void detachFileKeyWord(tkWord* result, int code) {
-	result->code = code;//这个函数专门用来解析< 后面的字符串, 如果没遇到> 说明他就是< 而不是特殊的  vector<> , #include <> 等
-	ch = getChar();
-	for (;;) {
-		if (ch == ' ') {
-			ch = getChar();
-		}
-		else {
-			switch (ch) {
-			case '>'://此处判定，如果tkstr.data 不是关键字，就可以调用连接器了
-				linker(result);
-				break;
-
-			case '_':
-			case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-			case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
-			case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
-			case 's': case 't': case 'u': case 'v': case 'w': case 'x':
-			case 'y': case 'z':
-			case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-			case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
-			case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
-			case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
-			case 'Y': case 'Z':
-				parseFileName(result);
-				if (elfHash((char*)result->str)) {//如果hash之后找到了，说明已经有这个关键字了,比如KW_INT,KW_DOUBLE之类
-					result->code = tkHashTable[elfHash((char*)result->str)]->code;
-				}
-				else {//否则的话，就是字符串，这个字符串就是#include 的头文件
-					result->code = CPP_IDENT;//暂时当作一个标识符
-					tkInsertIdentifier((char*)result->str);
-				}
-			}
-			ch = getChar();
-		}
-	}
-}
-
+//增加了解析数字的处理
 void parseNumber(tkWord* result) {
 	/*parse number maybe integet maybe float or in scientific notation
 	* maybe in decimal , hex, oct, bin
 	*/
-
+	int valid = 1;
+	int radix = 10; //默认是10进制
 	myDynStringReset(&tkstr);//tokenstr 里面记录这个数字对应的字符串
-	do {
-		myDynStringChcat(&tkstr, ch);
-		ch = getChar();
-	} while (isDigit(ch));
+	if (ch != 0) {
+		do {
+			myDynStringChcat(&tkstr, ch);
+			ch = getChar();
+		} while (isDigit(ch));
+	}
+	else{//0开头
+		radix = 8;
+		if (*buffer->cur == '.') {
+			radix = 10;//应该是10进制
+		}
+		else if(*buffer->cur == 'x' || *buffer->cur == 'X'){
+			radix = 16;//是16
+		}
+		do {
+			myDynStringChcat(&tkstr, ch);
+			ch = getChar();
+		} while (isXDigit(ch));
+	}
+
 	if (ch == '.') {
 		do {
 			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
 		} while (isDigit(ch));
 		if (ch == 'E') {//是否是用科学计数法
-			if (ch == '+' || ch == '-' || isDigit(ch)) {
+			if (ch == '+' || ch == '-' ) {
+				char t = *buffer->cur;
+				if (isDigit(t)) {
+					myDynStringChcat(&tkstr, ch);
+					myDynStringChcat(&tkstr, t);
+					buffer->cur++;
+					ch = getChar();
+					while(isDigit(ch)){
+						myDynStringChcat(&tkstr, ch);
+						ch = getChar();//这里可能多读了一个字符
+					}
+				}
+				else {
+					//非法指数 +/- 后面应该是数字
+					errorInfo curError;
+					curError.line = lineCount;
+					curError.col = curLine.charaCount;
+					curError.errorInfo = "invalid Exponent defination, digit should follow behind +/-";
+					curLine.staticInfo.push_back(curError);
+					valid = 0;
+				}
+			}
+			else if(isDigit(ch)){
 				do {
 					myDynStringChcat(&tkstr, ch);
 					ch = getChar();
 				} while (isDigit(ch));
+				if (notDigit(ch) && ch != '*') {
+					//非法标识符，数字后面不应该跟字母或下划线
+					errorInfo curError;
+					curError.line = lineCount;
+					curError.col = curLine.charaCount;
+					curError.errorInfo = "invalid identifier defination, should not start with digit";
+					curLine.staticInfo.push_back(curError);
+					valid = 0;
+				}
 			}
+			else {
+				//记录第几行，第几列出现什么样的错误
+				//这里是E后面 非法指数 invalid expo, E后面应该(+|-)digits
+				errorInfo curError;
+				curError.line = lineCount;
+				curError.col = curLine.charaCount;
+				curError.errorInfo = "invalid exponent defination, (+|-)digits should follow behind E";
+				curLine.staticInfo.push_back(curError);
+				valid = 0;
+			}
+		}
+		else if(notDigit(ch) && ch != '*'){
+			//非法数字常量，数字后面不应该跟字母或下划线
+			errorInfo curError;
+			curError.line = lineCount;
+			curError.col = curLine.charaCount;
+			curError.errorInfo = "invalid const number defination, should not follow alpha or underline";
+			curLine.staticInfo.push_back(curError);
 		}
 	}
 
@@ -823,11 +958,14 @@ void parseNumber(tkWord* result) {
 	result->str = (char*)malloc(sizeof(char) * tkstr.len + 1);
 	memcpy(result->str, tkstr.data, tkstr.len + 1);
 
+	if (!valid) return;
+
+
+	//接下来是对数字进行分类
 	if (tkstr.len == 2)
 		token = result->code = CPP_CINT;  //const int 整型常量
 	else {
 		int float_flag = NOT_FLOAT; // 先默认是非浮点数
-		int radix = 10; //默认是10进制
 		int index = 0;
 		token = result->code = CPP_N_DECIMAL;
 		if (tkstr.data[index] == '0') {
@@ -895,14 +1033,13 @@ void lexerDirect() {
 	tkWord result;//用来存储词法分析的五元组(这里只是两元组)
 //	ch = getChar();
 	switch (ch) {//ch就很像那个startPtr，看能不能合到一起，这样ch=getChar()能不能去掉
-	case '\n':
-		nextLine();//缓冲区装载下一行
-		break;
-		//....
+		//....  本来是\n 但是 \r\n只会同时出现，所以\n全都处理掉了
 
-	case ' ': case '\t': case '\f': case '\v': case '\0': case '\r':
+	case ' ': case '\t': case '\f': case '\v': case '\r':
 		skipWhiteSpace();
 		buffer->cur--;
+		charCount--;
+		curLine.charaCount--;
 		token = -1;
 		break;
 		//....
@@ -910,7 +1047,8 @@ void lexerDirect() {
 	case '\'': case '\"':
 		parseString(&result);
 		token = result.code;
-		
+		constCount++;
+		curLine.constCount++;
 		break;
 		//....
 
@@ -918,8 +1056,8 @@ void lexerDirect() {
 	{
 		char c = *buffer->cur;
 		if (c == '*') {
+			ch = getChar();
 			parseComment();
-			buffer->cur--;
 			//....
 		}
 		else if (c == '/') {//看看换行符前一个是不是\符号,如果是\符号，那他下一行还是注释
@@ -930,8 +1068,9 @@ void lexerDirect() {
 			find = strchr(buffer->data, '\\');
 			while (find) {
 				if ((*(find + 1) == '\r') && (*(find + 2) == '\n')) {
-					printf("\n");
-					nextLine();
+					do {
+						ch = getChar();
+					} while (ch != '\n');
 					find = strchr(buffer->data, '\\');
 				}
 				else {
@@ -949,12 +1088,13 @@ void lexerDirect() {
 			}
 			if (ch == '\0') {
 				buffer->cur--;
+				charCount--;
+				curLine.charaCount--;
 				token = -1;
 			}
 		}//看一下能不能和parseComment()合到一起
 		else if (c == '=') {
 			ch = getChar();
-			buffer->startPtr = buffer->cur;
 			result.code = CPP_DIV_EQ;
 			token = result.code;
 		}
@@ -988,8 +1128,12 @@ void lexerDirect() {
 	{
 		result.code = CPP_NUMBER;
 		parseNumber(&result);
+		constCount++;
+		curLine.constCount++;
 		token = result.code;
 		buffer->cur--;
+		charCount--;
+		curLine.charaCount--;
 	}
 	break;
 
@@ -1012,6 +1156,10 @@ void lexerDirect() {
 			parseIdentifier(&result);
 			token = result.code;
 			buffer->cur--;
+			charCount--;
+			curLine.charaCount--;
+			curLine.identificatorCount++;
+			identifierCount++;
 			//...
 		}
 		break;
@@ -1025,24 +1173,33 @@ void lexerDirect() {
 			ch = getChar();
 			result.code = CPP_LESS_EQ;
 			token = CPP_LESS_EQ;
+			curLine.operatorCount++;
+			operatorCount++;
 		}
 		else if (*buffer->cur == '<') {
 			ch = getChar();
 			result.code = ifNexIs('=', CPP_LSHIFT_EQ, CPP_LSHIFT);
 			token = result.code;
+			curLine.operatorCount++;
+			operatorCount++;
 		}
 		else if (isDigit(*buffer->cur)) {
 			break;
 		}
-		else if(notDigit(*buffer->cur)){
+		else if (notDigit(*buffer->cur)) {
 			parseString(&result);//如果没有对应的> 说明他就是一个<符号，所以就可以让result.code = CPP_LESS
+			angleMatching++;
+			constCount++;
+			curLine.constCount++;
 		}
 
 		//....
 		break;
 
-	case '>'://有点问题
+	case '>'://
 		token = CPP_GREATER;
+		curLine.operatorCount++;
+		operatorCount++;
 		result.code = CPP_GREATER;
 		if (*buffer->cur == '=') {
 			ch = getChar();
@@ -1060,6 +1217,8 @@ void lexerDirect() {
 
 	case '+':
 		token = result.code = CPP_PLUS;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '+')
 			ch = getChar(), token = result.code = CPP_PLUSPLUS;
 		if (*buffer->cur == '=')
@@ -1069,6 +1228,8 @@ void lexerDirect() {
 
 	case '&':
 		token = result.code = CPP_ARITH_AND;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '&')
 			ch = getChar(), token = result.code = CPP_LOGIC_AND;
 		if (*buffer->cur == '=')
@@ -1078,6 +1239,8 @@ void lexerDirect() {
 
 	case '|':
 		token = result.code = CPP_ARITH_OR;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '|')
 			ch = getChar(), token = result.code = CPP_LOGIC_OR;
 		if (*buffer->cur == '=')
@@ -1086,12 +1249,15 @@ void lexerDirect() {
 		break;
 
 	case '-':
-		result.code = CPP_MINUS;
-		token = CPP_MINUS;
+		result.code = token = CPP_MINUS;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '>') {
 			ch = getChar();
 			result.code = CPP_PTR;
 			token = CPP_PTR;
+			curLine.boundaryCount++;
+			boundaryCount++;
 			if (*buffer->cur == '*') {
 				ch = getChar();
 				result.code = CPP_PTR_STAR;
@@ -1100,27 +1266,31 @@ void lexerDirect() {
 		}
 		else if (*buffer->cur == '-') {
 			ch = getChar();
-			result.code = CPP_MINUSMINUS;
-			token = CPP_MINUSMINUS;
+			result.code = token = CPP_MINUSMINUS;
+			curLine.operatorCount++;
+			operatorCount++;
 		}
 		else if (*buffer->cur == '=') {
 			ch = getChar();
-			token = CPP_MINUS_EQ;
-			result.code = CPP_MINUS_EQ;
+			token = result.code = CPP_MINUS_EQ;
+			curLine.operatorCount++;
+			operatorCount++;
 		}
 		break;
 
 	case '%':
-		result.code = CPP_MOD;
-		token = CPP_MOD;
+		result.code = token = CPP_MOD;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '=')
 			ch = getChar(), token = result.code = CPP_MOD_EQ;
 		//....
 		break;
 
 	case '*':
-		result.code = CPP_MULT;
-		token = CPP_MULT;
+		result.code = token = CPP_MULT;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '=')
 			ch = getChar(), token = result.code = CPP_MULT_EQ;
 		//....
@@ -1128,6 +1298,8 @@ void lexerDirect() {
 
 	case '=':
 		token = result.code = CPP_ASSIGN;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '=')
 			ch = getChar(), token = result.code = CPP_EQ;
 		//....
@@ -1135,6 +1307,8 @@ void lexerDirect() {
 
 	case '!':
 		token = result.code = CPP_NOT;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '=')
 			ch = getChar(), token = result.code = CPP_NOT_EQ;
 		//....
@@ -1142,6 +1316,8 @@ void lexerDirect() {
 
 	case '^':
 		token = result.code = CPP_XOR;
+		curLine.operatorCount++;
+		operatorCount++;
 		if (*buffer->cur == '=')
 			ch = getChar(), token = result.code = CPP_MOD_EQ;
 		//....
@@ -1154,49 +1330,220 @@ void lexerDirect() {
 			//....
 			token = result.code = CPP_NUMBER;
 			parseNumber(&result);
+			constCount++;
+			curLine.constCount++;
 			//....
 		}
-		else if (*buffer->cur == '.' && buffer->cur[1] == '.')
-			buffer->cur += 2, token = result.code = CPP_ELLIPSIS;
+		else if (*buffer->cur == '.' && buffer->cur[1] == '.') {
+			getChar(), getChar();
+			token = result.code = CPP_ELLIPSIS;
+			curLine.definatorCount++;
+			definatioinCount++;
+		}
+		else {
+			curLine.boundaryCount++;
+			boundaryCount++;
+		}
 		break;
 		//...
 
+
+	//add file head #include || #define func
 	case '#':
 		token = result.code = CPP_HASH;
 		if (*buffer->cur == '#') {
 			ch = getChar();
 			token = result.code = CPP_PASTE;
+			curLine.boundaryCount++;
+			boundaryCount++;
+		}
+		else if (*buffer->cur == 'd' || *buffer->cur == 'i' || *buffer->cur == 'p') { //#define #include
+			char c = ch;
+			parseIdentifier(&result);
+			curLine.identificatorCount++;
+			identifierCount++;
+			token = result.code = CPP_IDENT;
+			if (strcmp("#define", result.str) || strcmp("#include", result.str) || strcmp("#ifndef", result.str) || strcmp("#pragma", result.str)) {
+			}
+			else if(c == 'd'){
+				//should be define but write as result.str
+				errorInfo curError;
+				curError.line = lineCount;
+				curError.col = curLine.charaCount;
+				curError.errorInfo = "invalid defination, should be #define";
+				curLine.staticInfo.push_back(curError);
+			}
+			else{
+				//should be include but write as result.str
+				errorInfo curError;
+				curError.line = lineCount;
+				curError.col = curLine.charaCount;
+				curError.errorInfo = "invalid reference, should be #include or #ifndef";
+				curLine.staticInfo.push_back(curError);
+			}
 		}
 		break;
 
 	case ':':
 		token = result.code = CPP_COLON;
+		curLine.boundaryCount++;
+		boundaryCount++;
 		if (*buffer->cur == ':') {
 			ch = getChar();
 			token = result.code = CPP_COLON_COLON;
+			curLine.boundaryCount++;
+			boundaryCount++;
 		}
 		break;
 
-	case '?': token = result.code = CPP_QUERY; break;
-	case '~': token = result.code = CPP_COMPL; break;
-	case ',': token = result.code = CPP_COMMA; break;
-	case '(': token = result.code = CPP_OPEN_PAREN; break;
-	case ')': token = result.code = CPP_CLOSE_PAREN; break;
-	case '[': token = result.code = CPP_OPEN_SQUARE; break;
-	case ']': token = result.code = CPP_CLOSE_SQUARE; break;
-	case '{': token = result.code = CPP_OPEN_BRACE; break;
-	case '}': token = result.code = CPP_CLOSE_BRACE; break;
-	case ';': token = result.code = CPP_SEMICOLON; break;
+	case '?': 
+		token = result.code = CPP_QUERY;		
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
 
-	case -1:
+	case '~': 
+		token = result.code = CPP_COMPL; 
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
+
+	case ',': token = result.code = CPP_COMMA;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
+
+
+	//检查右括号
+	case '(': 
+		token = result.code = CPP_OPEN_PAREN; 
+		parenMatching++;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
+
+	case '[': 
+		token = result.code = CPP_OPEN_SQUARE; 
+		squareMatching++;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
+
+	case '{': 
+		token = result.code = CPP_OPEN_BRACE; 
+		braceMatching++;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
+
+	case ')':
+		token = result.code = CPP_CLOSE_PAREN;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		parenMatching--;
+		break;
+
+	case ']':
+		token = result.code = CPP_CLOSE_SQUARE;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		squareMatching--;
+		break;
+
+	case '}':
+		token = result.code = CPP_CLOSE_BRACE;
+		curLine.boundaryCount++;
+		boundaryCount++;
+		braceMatching--;
+		break;
+
+	case ';'://一般如果这一行'\r'前面的最后一个字符是: { } 那么不用; 否则都需要分号，所以staticOnLine 可以统计这一行最后一个字符存的是什么，如果发现缺少;可以报错
+		token = result.code = CPP_SEMICOLON;
+		noMatchingHandler();
+		curLine.boundaryCount++;
+		boundaryCount++;
+		break;
+
+	case -1: case '\0':
 		over = true;
+		token = -1;
 		break;
 
 	default:
 		break;
 	}
 	//.... 
-	//....目前会丢掉单词后面的那一位，比如' ',(,)
+	//....
 	ch = getChar();
 }
 #endif //!MYLEXER_H
+
+
+
+
+
+
+/*
+void parseFileName(tkWord* result) {
+	myDynStringReset(&tkstr);
+	do {
+		myDynStringChcat(&tkstr, ch);
+	} while (notDigit(ch));
+	if (ch == '.') {
+		myDynStringChcat(&tkstr, ch);
+		ch = getChar();
+		if (ch == 'h' || ch == 'c') {
+			myDynStringChcat(&tkstr, ch);
+			ch = getChar();
+			if (ch == 'p') {
+				ch = getChar();
+				if (ch == 'p') {
+					myDynStringChcat(&tkstr, ch);
+					myDynStringChcat(&tkstr, ch);
+				}
+			}
+		}
+	}
+	myDynStringChcat(&tkstr, '\0');
+	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
+	memcpy(result->str, tkstr.data, tkstr.len + 1);
+}
+
+void detachFileKeyWord(tkWord* result, int code) {
+	result->code = code;//这个函数专门用来解析< 后面的字符串, 如果没遇到> 说明他就是< 而不是特殊的  vector<> , #include <> 等
+	ch = getChar();
+	for (;;) {
+		if (ch == ' ') {
+			ch = getChar();
+		}
+		else {
+			switch (ch) {
+			case '>'://此处判定，如果tkstr.data 不是关键字，就可以调用连接器了
+				linker(result);
+				break;
+
+			case '_':
+			case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+			case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
+			case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+			case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+			case 'y': case 'z':
+			case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+			case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
+			case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
+			case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
+			case 'Y': case 'Z':
+				parseFileName(result);
+				if (elfHash((char*)result->str)) {//如果hash之后找到了，说明已经有这个关键字了,比如KW_INT,KW_DOUBLE之类
+					result->code = tkHashTable[elfHash((char*)result->str)]->code;
+				}
+				else {//否则的话，就是字符串，这个字符串就是#include 的头文件
+					result->code = CPP_IDENT;//暂时当作一个标识符
+					tkInsertIdentifier((char*)result->str);
+				}
+			}
+			ch = getChar();
+		}
+	}
+}
+*/
