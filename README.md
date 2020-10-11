@@ -1,4 +1,8 @@
+# ![Logo](Logo.png)
+
 # Now I successfully texer the hello.c and realized a colorization to visualize it
+
+# ![Tittle](Tittle.png)
 
 # **Todo List**
 - [x]   Simple Texer
