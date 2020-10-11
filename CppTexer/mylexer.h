@@ -290,6 +290,70 @@ void error(const char* fmt, ...) {
 	va_end(ap);
 }
 
+void noMatchingHandler() {
+	if (parenMatching > 0) {
+		//need more '(' or less ')' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more '(' or less ')' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+	else if (parenMatching < 0) {
+		//need more ')' or less '(' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more ')' or less '(' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+
+	if (squareMatching > 0) {
+		//need more '[' or less ']' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more '[' or less ']' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+	else if (squareMatching < 0) {
+		//need more ']' or less '[' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more ']' or less '[' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+
+
+	/*	//关键是{和}一般都不在一行,所以还需要单独处理
+		if (braceMatching > 0) {
+			//need more '{' or less '}' in line %dth, Col %dth, lineCount, charaCount
+		}
+		else if (braceMatching < 0) {
+			//need more '}' or less '{' in line %dth, Col %dth, lineCount, charaCount
+		}
+	*/
+
+
+	if (angleMatching > 0) {
+		//nedd more '<' or less '>' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "nedd more '<' or less '>' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+	else if (angleMatching < 0) {
+		//need more '>' or less '<' in line %dth, Col %dth, lineCount, charaCount
+		errorInfo curError;
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "need more '>' or less '<' in line";
+		curLine.staticInfo.push_back(curError);
+	}
+}
+
 char getChar() {
 	ch = *(buffer->cur);
 	//cur指针指向缓冲区末尾 或者 cur指针指向的内容是'\n'，buffer要读下一行或者读当前行下一部分
@@ -298,6 +362,7 @@ char getChar() {
 	//buffer要读下一行(部分)
 	if (ch == '\n') {
 		//printf("\n");
+		noMatchingHandler();
 		staticOnLine temp;
 		temp.boundaryCount = curLine.boundaryCount;
 		temp.charaCount = curLine.charaCount;
@@ -562,7 +627,41 @@ void preprocess() {
 				parseComment();
 				break;
 			}
-			else {
+			else if (ch == '/'){
+				char* find;
+				find = (char*)malloc(sizeof(char) * BUFFER_MAX);
+				find = strchr(buffer->data, '\\');
+				while (find) {
+					if ((*(find + 1) == '\r') && (*(find + 2) == '\n')) {
+						do {
+							ch = getChar();
+						} while (ch != '\n');
+						find = strchr(buffer->data, '\\');
+					}
+					else {
+						find = strchr(find + 1, '\\');
+					}
+					//*(find + 1) == '\n' ? nextLine() : [&]()->void{find = strchr(find, '\\');}
+				}
+				if (ch == '\n') {
+					ch = getChar();
+				}
+				while ((!find) && ch  != '\n' && ch != '\0') {
+					ch = getChar();
+				}
+				if (ch == '\n') {
+					lineCount++;
+					printf("\n");
+					token = -1;
+				}
+				if (ch == '\0') {
+					buffer->cur--;
+					charCount--;
+					curLine.charaCount--;
+					token = -1;
+				}
+			}
+			else{
 				ungetc(ch, fin);
 				ch = '/';
 				break;
@@ -677,70 +776,6 @@ int ifNexIs(char c, eTokenCode A, eTokenCode B) {
 	return B;
 }
 
-void noMatchingHandler() {
-	if (parenMatching > 0) {
-		//need more '(' or less ')' in line %dth, Col %dth, lineCount, charaCount
-		errorInfo curError;
-		curError.line = lineCount;
-		curError.col = curLine.charaCount;
-		curError.errorInfo = "need more '(' or less ')' in line";
-		curLine.staticInfo.push_back(curError);
-	}
-	else if (parenMatching < 0) {
-		//need more ')' or less '(' in line %dth, Col %dth, lineCount, charaCount
-		errorInfo curError;
-		curError.line = lineCount;
-		curError.col = curLine.charaCount;
-		curError.errorInfo = "need more ')' or less '(' in line";
-		curLine.staticInfo.push_back(curError);
-	}
-
-	if(squareMatching > 0) {
-		//need more '[' or less ']' in line %dth, Col %dth, lineCount, charaCount
-		errorInfo curError;
-		curError.line = lineCount;
-		curError.col = curLine.charaCount;
-		curError.errorInfo = "need more '[' or less ']' in line";
-		curLine.staticInfo.push_back(curError);
-	}
-	else if (squareMatching < 0) {
-		//need more ']' or less '[' in line %dth, Col %dth, lineCount, charaCount
-		errorInfo curError;
-		curError.line = lineCount;
-		curError.col = curLine.charaCount;
-		curError.errorInfo = "need more ']' or less '[' in line";
-		curLine.staticInfo.push_back(curError);
-	}
-
-
-/*	//关键是{和}一般都不在一行,所以还需要单独处理
-	if (braceMatching > 0) {
-		//need more '{' or less '}' in line %dth, Col %dth, lineCount, charaCount
-	}
-	else if (braceMatching < 0) {
-		//need more '}' or less '{' in line %dth, Col %dth, lineCount, charaCount
-	}
-*/ 
-
-
-	if (angleMatching > 0) {
-		//nedd more '<' or less '>' in line %dth, Col %dth, lineCount, charaCount
-		errorInfo curError;
-		curError.line = lineCount;
-		curError.col = curLine.charaCount;
-		curError.errorInfo = "nedd more '<' or less '>' in line";
-		curLine.staticInfo.push_back(curError);
-	}
-	else if (angleMatching < 0) {
-		//need more '>' or less '<' in line %dth, Col %dth, lineCount, charaCount
-		errorInfo curError;
-		curError.line = lineCount;
-		curError.col = curLine.charaCount;
-		curError.errorInfo = "need more '>' or less '<' in line";
-		curLine.staticInfo.push_back(curError);
-	}
-}
-
 void parseIdentifier(tkWord* result) {//
 	myDynStringReset(&tkstr);
 	myDynStringChcat(&tkstr, ch);
@@ -749,7 +784,25 @@ void parseIdentifier(tkWord* result) {//
 		myDynStringChcat(&tkstr, ch);
 		ch = getChar();
 	}
-	if (ch != ' ' || ch != '\t' || ch != '\r') {
+	if (ch == '-') {
+		if (*buffer->cur == '>') {
+			myDynStringChcat(&tkstr, ch);
+			ch = getChar();
+			do {
+				myDynStringChcat(&tkstr, ch);
+				getChar();
+			} while (notDigit(ch));
+		}
+	}
+	if (ch == '.'|| ch == '+' || ch == '-' || ch == ':') {
+		myDynStringChcat(&tkstr, '\0');
+		result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
+		memcpy(result->str, tkstr.data, tkstr.len + 1);
+		tkInsertIdentifier((char*)result->str);
+		result->code = token;
+		return;
+	}
+	if (ch !=' ' && ch != '\t' && ch != '\r' && ch != '\n' && ch != ',' && ch != ';' && ch!='{' && ch!='[' && ch!=']' && ch!='(' && ch!=')') {
 		//标识符错误
 		errorInfo curError;
 		curError.line = lineCount;
@@ -757,6 +810,7 @@ void parseIdentifier(tkWord* result) {//
 		curError.errorInfo = "invalid identifier defination";
 		curLine.staticInfo.push_back(curError);
 	}
+
 	myDynStringChcat(&tkstr, '\0');
 	result->str = (char*)malloc(sizeof(char) * (tkstr.len + 1));
 	memcpy(result->str, tkstr.data, tkstr.len + 1);
@@ -1459,7 +1513,7 @@ void lexerDirect() {
 
 	case ';'://一般如果这一行'\r'前面的最后一个字符是: { } 那么不用; 否则都需要分号，所以staticOnLine 可以统计这一行最后一个字符存的是什么，如果发现缺少;可以报错
 		token = result.code = CPP_SEMICOLON;
-		noMatchingHandler();
+		//noMatchingHandler();
 		curLine.boundaryCount++;
 		boundaryCount++;
 		break;

@@ -1,16 +1,12 @@
 ﻿  mylexer.cpp
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(2,1): warning C4005: “_CRT_SECURE_NO_WARNINGS”: 宏重定义
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp : message : 参见“_CRT_SECURE_NO_WARNINGS”的前一个定义
-C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(768,7): warning C4101: “c”: 未引用的局部变量
-C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(1065,1): warning C4010: 单行注释包含行继续符
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(822,7): warning C4101: “c”: 未引用的局部变量
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(1119,1): warning C4010: 单行注释包含行继续符
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(195,20): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(196,21): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(254,1): warning C4010: 单行注释包含行继续符
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(255,1): warning C4010: 单行注释包含行继续符
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(256,1): warning C4010: 单行注释包含行继续符
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(257,1): warning C4010: 单行注释包含行继续符
-  mylexer.h
-C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(768,7): warning C4101: “c”: 未引用的局部变量
-C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(1065,1): warning C4010: 单行注释包含行继续符
-  正在生成代码...
   CppTexer.vcxproj -> C:\Users\linln\source\repos\CppTexer\Debug\CppTexer.exe

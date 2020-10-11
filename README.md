@@ -25,14 +25,22 @@
 # ***100 small*** *types of tokens in details*
  *which include commen Keywords in C, all the notations ~!@#$%^&*()_+{}:"<>?[]\;',./ , different kinds of numbers such as float, double or expon numbers, constant string and so on...*
 
-## *The first test example's result is as follows:*
+# ***Some*** *kinds of method to detect the texical error in the src file 
+ *Now it can recognize the identifier defination error and error formart of numbers, wrong header reference and so on*
+
+## *The first test example's result use MyTexer v1.0 is as follows:*
 ## ![example1](example1.png)
 
-## *The second test example's result is as follows:*
+## *The second test example's result use MyTexer v1.0 is as follows:*
 ## ![example2](example2.png)
 
-## *The third test example's result is as follows:*
+## *The third test example's result use MyTexer v1.1 is as follows:*
 ## ![example3](example3.png)
+
+## I Texical analysized the source code of my Texer using my Texer
+
+
+## Then a complicated full of mistakes example test7.c was used. But now I got a few problems. To be Continue;
 
 
 ## *Implementation Details::*

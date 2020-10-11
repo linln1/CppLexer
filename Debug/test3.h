@@ -783,14 +783,12 @@ void parseNumber(tkWord* result) {
 			radix = 8;	//非浮点数，开头是0，则不可能是十进制
 			index++;
 			token = result->code = CPP_N_OCTAL;
-			if ((tkstr.data[index] == 'x' || tkstr.data[index] == 'X') &&
-				(tkstr.data[index + 1] == '.' || isXDigit(tkstr.data[index + 1]))) {
+			if ((tkstr.data[index] == 'x' || tkstr.data[index] == 'X') && (tkstr.data[index + 1] == '.' || isXDigit(tkstr.data[index + 1]))) {
 				radix = 16;
 				index++;
 				token = result->code = CPP_N_HEX;
 			}//16进制
-			else if (tkstr.data[index] == 'b' || tkstr.data[index] == 'B' &&
-				(tkstr.data[index + 1] == '0' || tkstr.data[index + 1] == '1')) {
+			else if (tkstr.data[index] == 'b' || tkstr.data[index] == 'B' && (tkstr.data[index + 1] == '0' || tkstr.data[index + 1] == '1')) {
 				radix = 2;
 				index++;
 				token = result->code = CPP_N_BINARY;
@@ -805,8 +803,7 @@ void parseNumber(tkWord* result) {
 			else if (c == '.') {//如果有小数点，说明他是个浮点数
 				float_flag = AFTER_POINT;
 			}
-			else if ((radix <= 10 && (c == 'E' || c == 'e')) ||
-				(radix <= 16 && (c == 'P' || c == 'p'))) {//科学计数法
+			else if ((radix <= 10 && (c == 'E' || c == 'e')) || (radix <= 16 && (c == 'P' || c == 'p'))) {//科学计数法
 				float_flag = AFTER_EXPON;
 				break;//不用继续识别科学计数法后面部分的数字
 			}

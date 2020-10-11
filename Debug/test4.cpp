@@ -68,7 +68,7 @@ void lexerInit() {
 		{ CPP_EOF,	NULL,	(char*)"eof",	NULL,	NULL },		//end of file
 
 		{ CPP_CINT,	NULL,	(char*)"const int",	NULL,	NULL },		//const int
-		{ CPP_CFLOAT,	NULL,	(char*)"const float",	NULL,	NULL},	//const float
+		{ CPP_CFLOAT,	NULL,	(char*)"const float",	NULL,	NULL },	//const float
 		{ CPP_CCHAR,	NULL,	(char*)"const char",	NULL,	NULL },		//const char
 		{ CPP_CSTR,	NULL,	(char*)"const char*",	NULL,	NULL },		//const char*
 
@@ -119,7 +119,7 @@ void lexerInit() {
 		{ CPP_N_BINARY,	NULL,	(char*)"bin",	NULL,	NULL },	//binary number
 		{ CPP_N_OCTAL,	NULL,	(char*)"oct",	NULL,	NULL },		//octal number
 
-		{CPP_IDENT,	NULL,	(char*)"identifier",	NULL,	NULL}			//identifier
+		{CPP_IDENT,	NULL,	(char*)"identifier",	NULL,	NULL }			//identifier
 	};
 	
 	myDynArrayInit(&tkTable, 8);
@@ -185,9 +185,9 @@ int main(int argc, char **argv) {
 
 	preprocess();//预处理，去掉注释
 
-	while(ch!=-1) {
+	while(ch != -1) {
 		lexerDirect();
-		if(token>=0)
+		if( token >= 0 )
 			colorToken(LEX_NORMAL);
 		if (over || ch == '\0')
 			break;
@@ -203,10 +203,3 @@ int main(int argc, char **argv) {
 
 	lexerCleanup();
 }
-
-//\
- \
-另外就是，现在标识符和定义符的输出都没有错了 \
-tokenCode 的顺序需要调整一下\
-getTkstr 函数有些问题\
-lexDirect 函数中有的地方buffer->cur 需要--，这个得一个一个试\
