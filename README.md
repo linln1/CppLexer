@@ -1,8 +1,6 @@
-# ![Logo](Logo.png)
+# ![Logo](Logo.png) MyLexer
 
 # Now I successfully lexer the hello.c and realized a colorization to visualize it
-
-# ![Tittle](Tittle.png)
 
 # **Todo List**
 - [x]   Simple lexer
