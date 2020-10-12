@@ -1,4 +1,5 @@
-﻿  mylexer.cpp
+﻿D:\Visual Studio 2019\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(491,5): warning MSB8028: 中间目录(Debug\)包含从另一个项目(CppTexer.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  mylexer.cpp
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(2,1): warning C4005: “_CRT_SECURE_NO_WARNINGS”: 宏重定义
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp : message : 参见“_CRT_SECURE_NO_WARNINGS”的前一个定义
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(822,7): warning C4101: “c”: 未引用的局部变量
@@ -9,4 +10,8 @@ C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(254,1): warning C4010:
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(255,1): warning C4010: 单行注释包含行继续符
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(256,1): warning C4010: 单行注释包含行继续符
 C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.cpp(257,1): warning C4010: 单行注释包含行继续符
-  CppTexer.vcxproj -> C:\Users\linln\source\repos\CppTexer\Debug\CppTexer.exe
+  mylexer.h
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(822,7): warning C4101: “c”: 未引用的局部变量
+C:\Users\linln\source\repos\CppTexer\CppTexer\mylexer.h(1119,1): warning C4010: 单行注释包含行继续符
+  正在生成代码...
+  CppTexer.vcxproj -> C:\Users\linln\source\repos\CppTexer\Debug\CppLexer.exe

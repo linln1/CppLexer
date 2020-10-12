@@ -24,6 +24,7 @@
     <ProjectGuid>{95c62e43-bfc8-4cac-8201-bd92749e9033}</ProjectGuid>
     <RootNamespace>CppTexer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>CppLexer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

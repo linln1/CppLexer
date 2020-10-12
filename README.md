@@ -1,11 +1,11 @@
 # ![Logo](Logo.png)
 
-# Now I successfully texer the hello.c and realized a colorization to visualize it
+# Now I successfully lexer the hello.c and realized a colorization to visualize it
 
 # ![Tittle](Tittle.png)
 
 # **Todo List**
-- [x]   Simple Texer
+- [x]   Simple lexer
 - [x]   Simple Shader
 - [ ]   Error Correction
 
@@ -29,19 +29,19 @@
 # ***100 small*** *types of tokens in details*
  *which include commen Keywords in C, all the notations ~!@#$%^&*()_+{}:"<>?[]\;',./ , different kinds of numbers such as float, double or expon numbers, constant string and so on...*
 
-# ***Some*** *kinds of method to detect the texical error in the src file 
+# ***Some*** *kinds of method to detect the lexical error in the src file 
  *Now it can recognize the identifier defination error and error formart of numbers, wrong header reference and so on*
 
-## *The first test example's result use MyTexer v1.0 is as follows:*
+## *The first test example's result use Mylexer v1.0 is as follows:*
 ## ![example1](example1.png)
 
-## *The second test example's result use MyTexer v1.0 is as follows:*
+## *The second test example's result use Mylexer v1.0 is as follows:*
 ## ![example2](example2.png)
 
-## *The third test example's result use MyTexer v1.1 is as follows:*
+## *The third test example's result use Mylexer v1.1 is as follows:*
 ## ![example3](example3.png)
 
-## I Texical analysized the source code of my Texer using my Texer
+## I lexical analysized the source code of my lexer using my lexer
 
 
 ## Then a complicated full of mistakes example test7.c was used. But now I got a few problems. To be Continue;
