@@ -2,6 +2,7 @@
 /.vs/
 /vs/
 /*.sln
-CppTexer/don'tuse
-CppTexer/*.vcxproj
-CppTexer/*.filters
+CppLexer/don'tuse
+CppLexer/*.vcxproj
+CppLexer/*.filters
+*.sln

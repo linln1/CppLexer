@@ -139,7 +139,7 @@ void lexerInit() {
 		//标识符
 		{ CPP_IDENT,	NULL,	(char*)"identifier",	NULL,	NULL}			//identifier
 	};
-	
+
 	myDynArrayInit(&tkTable, 8);
 	int i = 0;
 	for (temp = &keywords[0]; temp->str != NULL; temp++) {
@@ -152,9 +152,9 @@ void lexerInit() {
 
 void lexerCleanup() {
 	printf("\ntkTable length = %d\n", tkTable.len);
-//	for (int i = 0; i < tkTable.len; i++) {
-//		free(tkTable.data[i]);
-//	}
+	//	for (int i = 0; i < tkTable.len; i++) {
+	//		free(tkTable.data[i]);
+	//	}
 	free(tkTable.data);
 }
 
@@ -195,45 +195,48 @@ void infoDisplay() {
 	for (int i = 0; i < lexError.size(); i++) {
 		for (int j = 0; j < lexError[i].staticInfo.size(); j++) {
 			errorCount++;
-			printf("%d Compile Error: <line:%d, col:%d>", errorCount,  lexError[i].staticInfo[j].line, lexError[i].staticInfo[j].col);
-			cout << lexError[i].staticInfo[j].errorInfo <<endl;
+			printf("%d Compile Error: <line:%d, col:%d>", errorCount, lexError[i].staticInfo[j].line, lexError[i].staticInfo[j].col);
+			cout << lexError[i].staticInfo[j].errorInfo << endl;
 		}
 	}
-	
+
 	printf("\nline of code : %d\n", lineCount);
-/*
-	for (int i = 0; i < tokenCount; i++) {
-		printf("<%s, %s>\n", tokenStream[i].first, (char *)tokenStream[i].second);
-	}
-*/
+	/*
+		for (int i = 0; i < tokenCount; i++) {
+			printf("<%s, %s>\n", tokenStream[i].first, (char *)tokenStream[i].second);
+		}
+	*/
+	printf("\n字符个数 %d\n", charCount);
+	printf("\n单词个数 %d\n", identifierCount + definatioinCount);
+
 	printf("\n定义符 %d\n", definatioinCount);
 	printf("界符 %d\n", boundaryCount);
 	printf("运算符 %d\n", operatorCount);
 	printf("常量 %d\n", constCount);
 	printf("标识符 %d\n", identifierCount);
-
+	
 	printf("总共 %d\n", tokenCount);
 
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 	fin = fopen(argv[1], "rb");
-	filename = (char*)malloc(sizeof(char) * strlen(argv[1])+1);
+	filename = (char*)malloc(sizeof(char) * strlen(argv[1]) + 1);
 	memcpy(filename, argv[1], strlen(argv[1]) + 1);
 	if (!fin) {
 		printf("can't open source file!\n");
 		return 0;
 	}
-	
+
 	lineCount = 1;
-	
+
 	lexerInit();//符号表初始化，缓冲区初始化，缓冲区从文件中读入第一行
 
 	preprocess();//预处理，去掉注释
-	
-	while(ch!=-1) {
+
+	while (ch != -1) {
 		lexerDirect();
-		if(token>=0)
+		if (token >= 0)
 			colorToken(LEX_NORMAL);
 		if (over || ch == '\0')
 			break;
