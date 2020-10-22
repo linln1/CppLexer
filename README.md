@@ -27,7 +27,7 @@
 # ***100 small*** *types of tokens in details*
  *which include commen Keywords in C, all the notations ~!@#$%^&*()_+{}:"<>?[]\;',./ , different kinds of numbers such as float, double or expon numbers, constant string and so on...*
 
-# ***Some*** *kinds of method to detect the lexical error in the src file 
+# ***Some*** *kinds of method to detect the lexical error in the src file* 
  *Now it can recognize the identifier defination error and error formart of numbers, wrong header reference and so on*
 
 ## *The first test example's result use Mylexer v1.0 is as follows:*
