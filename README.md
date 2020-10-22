@@ -5,7 +5,7 @@
 # **Todo List**
 - [x]   Simple lexer
 - [x]   Simple Shader
-- [ ]   Error Correction
+- [x]   Error Correction
 
 # **Usage** :o:
 >Input: any C/Cpp/h source file
@@ -40,10 +40,12 @@
 ## ![example3](example3.png)
 
 ## I lexical analysized the source code of my lexer using my lexer
+## ![example4](example4.png)
 
-
-## Then a complicated full of mistakes example test7.c was used. But now I got a few problems. To be Continue;
-
+## Then a complicated full of mistakes example test7.c was used.
+## ![example5](example5.png)
+## ![example6](example6.png)
+## ![example7](example7.png)
 
 ## *Implementation Details::*
 
