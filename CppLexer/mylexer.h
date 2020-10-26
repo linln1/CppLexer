@@ -1,9 +1,9 @@
-#pragma once
+
 #pragma once
 #ifndef MYLEXER_H
 #define MYLEXER_H
 
-//±êÊ¶·û£¬ ¶¨Òå·û£¬ ½ç·û£¬ ³£Êı£¬ ÔËËã·û
+//æ ‡è¯†ç¬¦ï¼Œ å®šä¹‰ç¬¦ï¼Œ ç•Œç¬¦ï¼Œ å¸¸æ•°ï¼Œ è¿ç®—ç¬¦
 
 #include <stdio.h>
 #include <Windows.h>
@@ -19,140 +19,141 @@
 #define INITSIZE 8
 #define BUFFER_MAX 256
 
-
 using namespace std;
 
 //some structure
 enum eTokenCode {
 
-	//¶¨Òå·û
-	CPP_NAME,			//definator
-	KW_CHAR,			//char keyword
-	KW_DOUBLE,			//double keyword
-	KW_FLOAT,			//float keyword
-	KW_INT,				//int keyword
-	KW_LONG,			//long keyword
-	KW_BOOL,			//bool keyword
-	KW_REGISTER,		//register keyword
-	KW_SHORT,			//short keyword
-	KW_SIGNED,			//signed keyword
-	KW_STATIC,			//static keyword
-	KW_STRUCT,			//struct keyword
-	KW_UNSIGNED,		//unsigned keyword
-	KW_VOID,			//void keyword
-	KW_CHAR_STAR,		//char* keyword
-	KW_DOUBLE_STAR,			//double* keyword
-	KW_FLOAT_STAR,			//float* keyword
-	KW_INT_STAR,				//int* keyword
-	KW_LONG_STAR,			//long* keyword
-	KW_BOOL_STAR,			//bool* keyword
-	KW_SHORT_STAR,			//short* keyword
-	KW_VOID_STAR,		//void* keyword
-	KW_VOLATILE,		//volatile keyword
+	//å®šä¹‰ç¬¦
+	CPP_NAME,           //definator
+	KW_CHAR,            //char keyword
+	KW_DOUBLE,          //double keyword
+	KW_FLOAT,           //float keyword
+	KW_INT,             //int keyword
+	KW_LONG,            //long keyword
+	KW_BOOL,            //bool keyword
+	KW_REGISTER,        //register keyword
+	KW_SHORT,           //short keyword
+	KW_SIGNED,          //signed keyword
+	KW_STATIC,          //static keyword
+	KW_STRUCT,          //struct keyword
+	KW_UNSIGNED,        //unsigned keyword
+	KW_VOID,            //void keyword
+	KW_CHAR_STAR,       //char* keyword
+	KW_DOUBLE_STAR,         //double* keyword
+	KW_FLOAT_STAR,          //float* keyword
+	KW_INT_STAR,                //int* keyword
+	KW_LONG_STAR,           //long* keyword
+	KW_BOOL_STAR,           //bool* keyword
+	KW_SHORT_STAR,          //short* keyword
+	KW_VOID_STAR,       //void* keyword
+	KW_VOLATILE,        //volatile keyword
 
-	KW_IF,				//if keyword
-	KW_ELSE,			//else keyword
-	KW_FOR,				//for keyword
-	KW_CONTINUE,		//continue keyword
-	KW_BREAK,			//break keyword
-	KW_RETURN,			//return keyword
-	KW_SIZEOF,			//sizeof keyword
-	KW_WHILE,			//while keyword
-	KW_AUTO,			//auto keyword
-	KW_CASE,			//case keyword
-	KW_CONST,			//const keyword
-	KW_DEFAULT,			//default keyword
-	KW_DO,				//do keyword
-	KW_ENUM,			//enum keyword
-	KW_EXTERN,			//extern keyword
-	KW_GOTO,			//goto keyword
-	KW_SWITCH,			//switch keyword
-	KW_TYPEDEF,			//typedef keyword,
-	KW_UNION,			//union keyword
-	KW_NULL,			//null keyword
-	kW_B_TRUE,			//True keyword
-	KW_B_FALSE,			//False keyword
-	KW_L_TRUE,			//true keyword
-	KW_L_FALSE,			//false keyword
+	KW_IF,              //if keyword
+	KW_ELSE,            //else keyword
+	KW_FOR,             //for keyword
+	KW_CONTINUE,        //continue keyword
+	KW_BREAK,           //break keyword
+	KW_RETURN,          //return keyword
+	KW_SIZEOF,          //sizeof keyword
+	KW_WHILE,           //while keyword
+	KW_AUTO,            //auto keyword
+	KW_CASE,            //case keyword
+	KW_CONST,           //const keyword
+	KW_DEFAULT,         //default keyword
+	KW_DO,              //do keyword
+	KW_ENUM,            //enum keyword
+	KW_EXTERN,          //extern keyword
+	KW_GOTO,            //goto keyword
+	KW_SWITCH,          //switch keyword
+	KW_TYPEDEF,         //typedef keyword,
+	KW_UNION,           //union keyword
+	KW_NULL,            //null keyword
+	kW_B_TRUE,          //True keyword
+	KW_B_FALSE,         //False keyword
+	KW_L_TRUE,          //true keyword
+	KW_L_FALSE,         //false keyword
 
-	PREV_WHITE,			//white space 
-	CPP_ELLIPSIS,		//...
+	PREV_WHITE,         //white space 
+	CPP_ELLIPSIS,       //...
+	CPP_AT,             //@
+	CPP_DOLLAR,         //$
 
-	CPP_EOF,			//end of file
+	CPP_EOF,            //end of file
 
-	//ÔËËã·û
-	CPP_OPERA,			//operator
-	CPP_NOT,	//!
-	CPP_PLUS,	//+
-	CPP_MINUS,	//-
-	CPP_MULT,	//*
-	CPP_DIV,	// /
-	CPP_MOD,	//%
-	CPP_PLUS_EQ,	//+=
-	CPP_MINUS_EQ,	//-=
-	CPP_DIV_EQ,	///=
-	CPP_MULT_EQ,	//*=
-	CPP_PLUSPLUS,	//++
-	CPP_MINUSMINUS,	//--
-	CPP_MOD_EQ,	//%=
-	CPP_EQ,		//==
-	CPP_NOT_EQ,	//!=
-	CPP_LESS,	//<
+	//è¿ç®—ç¬¦
+	CPP_OPERA,          //operator
+	CPP_NOT,    //!
+	CPP_PLUS,   //+
+	CPP_MINUS,  //-
+	CPP_MULT,   //*
+	CPP_DIV,    // /
+	CPP_MOD,    //%
+	CPP_PLUS_EQ,    //+=
+	CPP_MINUS_EQ,   //-=
+	CPP_DIV_EQ, ///=
+	CPP_MULT_EQ,    //*=
+	CPP_PLUSPLUS,   //++
+	CPP_MINUSMINUS, //--
+	CPP_MOD_EQ, //%=
+	CPP_EQ,     //==
+	CPP_NOT_EQ, //!=
+	CPP_LESS,   //<
 	CPP_GREATER,//>
-	CPP_LESS_EQ,	//<=
-	CPP_GREATER_EQ,	//>=
-	CPP_LSHIFT,		//<<
-	CPP_RSHIFT,		//>>
-	CPP_LSHIFT_EQ,	//<<=
-	CPP_RSHIFT_EQ,	//>>=
-	CPP_ASSIGN,	//=
-	CPP_PTR,	//->
-	CPP_PTR_STAR,	//->*
-	CPP_DOT,	//.
-	CPP_LOGIC_AND,	//&&
-	CPP_ARITH_AND,	//&
-	CPP_AND_EQ,		//&=
-	CPP_LOGIC_OR,	//||
-	CPP_ARITH_OR,	//|
-	CPP_OR_EQ,		//|=
-	CPP_XOR,		//^
-	CPP_XOR_EQ,		//^=
+	CPP_LESS_EQ,    //<=
+	CPP_GREATER_EQ, //>=
+	CPP_LSHIFT,     //<<
+	CPP_RSHIFT,     //>>
+	CPP_LSHIFT_EQ,  //<<=
+	CPP_RSHIFT_EQ,  //>>=
+	CPP_ASSIGN, //=
+	CPP_PTR,    //->
+	CPP_PTR_STAR,   //->*
+	CPP_DOT,    //.
+	CPP_LOGIC_AND,  //&&
+	CPP_ARITH_AND,  //&
+	CPP_AND_EQ,     //&=
+	CPP_LOGIC_OR,   //||
+	CPP_ARITH_OR,   //|
+	CPP_OR_EQ,      //|=
+	CPP_XOR,        //^
+	CPP_XOR_EQ,     //^=
 
-	//½ç·û
-	CPP_BOUNDARY,		//boundary
-	CPP_OPEN_PAREN,	//(
-	CPP_CLOSE_PAREN,	//)
-	CPP_OPEN_SQUARE,	//[
-	CPP_CLOSE_SQUARE,	//]
-	CPP_OPEN_BRACE,		//{
-	CPP_CLOSE_BRACE,	//}
-	CPP_QUERY,			//?
-	CPP_COMPL,			//~
-	CPP_COMMA,			//,
-	CPP_SEMICOLON,		//;
-	CPP_HASH,			//#
-	CPP_PASTE,			//##
-	CPP_COLON,			//:
-	CPP_COLON_COLON,	//::
+	//ç•Œç¬¦
+	CPP_BOUNDARY,       //boundary
+	CPP_OPEN_PAREN, //(
+	CPP_CLOSE_PAREN,    //)
+	CPP_OPEN_SQUARE,    //[
+	CPP_CLOSE_SQUARE,   //]
+	CPP_OPEN_BRACE,     //{
+	CPP_CLOSE_BRACE,    //}
+	CPP_QUERY,          // 
+	CPP_COMPL,          //~
+	CPP_COMMA,          //,
+	CPP_SEMICOLON,      //;
+	CPP_HASH,           //#
+	CPP_PASTE,          //##
+	CPP_COLON,          //:
+	CPP_COLON_COLON,    //::
 
-	//³£Á¿: ÊıÖµ³£Á¿ºÍ×Ö·û³£Á¿
-	CPP_NUMBER,			//number
-	CPP_CINT,			//const int
-	CPP_CFLOAT,			//const float
-	CPP_CCHAR,			//const char
-	CPP_CSTR,			//const char*
+	//å¸¸é‡: æ•°å€¼å¸¸é‡å’Œå­—ç¬¦å¸¸é‡
+	CPP_NUMBER,         //number
+	CPP_CINT,           //const int
+	CPP_CFLOAT,         //const float
+	CPP_CCHAR,          //const char
+	CPP_CSTR,           //const char*
 
-	NOT_FLOAT,			//not a float number
-	AFTER_POINT,		//already find the mark of the float number
-	AFTER_EXPON,		//scientific count mark
+	NOT_FLOAT,          //not a float number
+	AFTER_POINT,        //already find the mark of the float number
+	AFTER_EXPON,        //scientific count mark
 
-	CPP_N_DECIMAL,		//decimal number
-	CPP_N_HEX,			//hex number
-	CPP_N_BINARY,		//binary number
-	CPP_N_OCTAL,		//octal number
+	CPP_N_DECIMAL,      //decimal number
+	CPP_N_HEX,          //hex number
+	CPP_N_BINARY,       //binary number
+	CPP_N_OCTAL,        //octal number
 
-	//±êÊ¶·û
-	CPP_IDENT			//identifier
+	//æ ‡è¯†ç¬¦
+	CPP_IDENT           //identifier
 };
 
 typedef struct TkWord {
@@ -164,18 +165,18 @@ typedef struct TkWord {
 }tkWord;
 
 typedef struct DynString {
-	int len;		//length of the string
-	int capacity;	//buffer length
-	char* data;		//the pointer to this string
+	int len;        //length of the string
+	int capacity;   //buffer length
+	char* data;     //the pointer to this string
 }dynString;
 
 typedef struct DynArray {
-	int len;	//len of array;
-	int capacity;	//capacity of the buffer
-	void** data;	//pointer to array
+	int len;    //len of array;
+	int capacity;   //capacity of the buffer
+	void** data;    //pointer to array
 }dynArray;
 
-dynArray tkTable;					//WordTable
+dynArray tkTable;                   //WordTable
 
 typedef struct BUFFER {
 	char data[BUFFER_MAX];
@@ -216,24 +217,23 @@ enum LEX_STATE {
 	LEX_SEP,
 };
 
-
 /// <summary>
 /// global variable
 /// </summary>
-int wordCount = 0; // Ô´´úÂëµ¥´ÊÊı
-int charCount = 0; // Ô´´úÂë×Ö·ûÊı
-int lineCount = 0; // Ô´´úÂëĞĞÊı
-int curLineSize = 0; //µ±Ç°ĞĞ×Ö·û¸öÊı
-int identifierCount = 0; //Ô´´úÂë±êÊ¶·û¸öÊı
-int definatioinCount = 0; //Ô´´úÂë¶¨Òå·û¸öÊı
-int boundaryCount = 0; //Ô´´úÂë½ç·û¸öÊı
-int constCount = 0; //Ô´´úÂë³£Êı¸öÊı
-int operatorCount = 0; //Ô´´úÂëÔËËã·û¸öÊı
-int tokenCount = 0;//Ô´´úÂëtokenÊı
+int wordCount = 0; // æºä»£ç å•è¯æ•°
+int charCount = 0; // æºä»£ç å­—ç¬¦æ•°
+int lineCount = 0; // æºä»£ç è¡Œæ•°
+int curLineSize = 0; //å½“å‰è¡Œå­—ç¬¦ä¸ªæ•°
+int identifierCount = 0; //æºä»£ç æ ‡è¯†ç¬¦ä¸ªæ•°
+int definatioinCount = 0; //æºä»£ç å®šä¹‰ç¬¦ä¸ªæ•°
+int boundaryCount = 0; //æºä»£ç ç•Œç¬¦ä¸ªæ•°
+int constCount = 0; //æºä»£ç å¸¸æ•°ä¸ªæ•°
+int operatorCount = 0; //æºä»£ç è¿ç®—ç¬¦ä¸ªæ•°
+int tokenCount = 0;//æºä»£ç tokenæ•°
 staticOnLine curLine;
 
 int token;
-bool over = false; //±êÖ¾ÎÄ¼şÊÇ·ñ¶ÁÍêÁË
+bool over = false; //æ ‡å¿—æ–‡ä»¶æ˜¯å¦è¯»å®Œäº†
 
 //
 int symMatching = 0;
@@ -242,28 +242,28 @@ int squareMatching = 0;
 int braceMatching = 0;
 int angleMatching = 0;
 
-
 char* filename;
 char* temp = (char*)malloc(sizeof(char) * 256);
 char ch;
+string debuglevel;
 
 BUFFER* buffer = (BUFFER*)malloc(sizeof(BUFFER));
 
 FILE* fin;
-std::map<int, std::pair<char*, char*>> tokenStream;
+std::map<int, std::pair<char*, string>> tokenStream;
+std::map<string, int> CountToken;
 
-//elfHash(str->key) *tkHashTable[key] ÊÇhashÖµÒ»ÑùµÄËùÓĞtkWordµÄÁ´±í
+//elfHash(str->key) *tkHashTable[key] æ˜¯hashå€¼ä¸€æ ·çš„æ‰€æœ‰tkWordçš„é“¾è¡¨
 //tkWord* tkHashTable[]  {code, *next, *str, symStruct, symIdentifier}
-//dynArray tkTable ±¾ÉíÊÇÒ»¸ö ¡®Ã¿Ò»Ïî´æµÄÊÇtkWordµÄÖ¸Õë¡¯ µÄÊı×é£¬lenÊÇtkTableµÄ³¤¶È£¬ capacityÊÇtkTableµÄ×î´óÈİÁ¿
+//dynArray tkTable æœ¬èº«æ˜¯ä¸€ä¸ª â€˜æ¯ä¸€é¡¹å­˜çš„æ˜¯tkWordçš„æŒ‡é’ˆâ€™ çš„æ•°ç»„ï¼Œlenæ˜¯tkTableçš„é•¿åº¦ï¼Œ capacityæ˜¯tkTableçš„æœ€å¤§å®¹é‡
 
-tkWord* tkHashTable[MAXKEY];		//HashTable 
+tkWord* tkHashTable[MAXKEY];        //HashTable 
 
 dynString tkstr;
 dynString sourcestr;
 
 int errorCount = 0;
 vector<staticOnLine> lexError;
-
 
 //some error handler function
 void exceptionHandle(int stage, int level, const char* fmt, va_list ap) {
@@ -326,8 +326,7 @@ void noMatchingHandler() {
 		curLine.staticInfo.push_back(curError);
 	}
 
-
-	/*	//¹Ø¼üÊÇ{ºÍ}Ò»°ã¶¼²»ÔÚÒ»ĞĞ,ËùÒÔ»¹ĞèÒªµ¥¶À´¦Àí
+	/*  //å…³é”®æ˜¯{å’Œ}ä¸€èˆ¬éƒ½ä¸åœ¨ä¸€è¡Œ,æ‰€ä»¥è¿˜éœ€è¦å•ç‹¬å¤„ç†
 		if (braceMatching > 0) {
 			//need more '{' or less '}' in line %dth, Col %dth, lineCount, charaCount
 		}
@@ -335,7 +334,6 @@ void noMatchingHandler() {
 			//need more '}' or less '{' in line %dth, Col %dth, lineCount, charaCount
 		}
 	*/
-
 
 	if (angleMatching > 0) {
 		//nedd more '<' or less '>' in line %dth, Col %dth, lineCount, charaCount
@@ -357,12 +355,12 @@ void noMatchingHandler() {
 
 char getChar() {
 	ch = *(buffer->cur);
-	//curÖ¸ÕëÖ¸Ïò»º³åÇøÄ©Î² »òÕß curÖ¸ÕëÖ¸ÏòµÄÄÚÈİÊÇ'\n'£¬bufferÒª¶ÁÏÂÒ»ĞĞ»òÕß¶Áµ±Ç°ĞĞÏÂÒ»²¿·Ö
+	//curæŒ‡é’ˆæŒ‡å‘ç¼“å†²åŒºæœ«å°¾ æˆ–è€… curæŒ‡é’ˆæŒ‡å‘çš„å†…å®¹æ˜¯'\n'ï¼Œbufferè¦è¯»ä¸‹ä¸€è¡Œæˆ–è€…è¯»å½“å‰è¡Œä¸‹ä¸€éƒ¨åˆ†
 	if (ch != '\0') {
 		charCount++;
 		curLine.charaCount++;
 	}
-	//bufferÒª¶ÁÏÂÒ»ĞĞ(²¿·Ö)
+	//bufferè¦è¯»ä¸‹ä¸€è¡Œ(éƒ¨åˆ†)
 	if (ch == '\n') {
 		//printf("\n");
 		noMatchingHandler();
@@ -378,8 +376,8 @@ char getChar() {
 		if (!fgets(buffer->data, BUFFER_MAX, fin)) {
 			over = true;
 			buffer->data[0] = '\0';
-		}//¶ÁÈ¡ÎÄ¼şÏÂÒ»ĞĞ,¶ÁÈ¡BUFFER_MAX¸ö×Ö·û»òÕß¶ÁÈ¡µ½'\n'Ê±Í£Ö¹
-		buffer->startPtr = &buffer->data[0];//µ±Ç°µ¥´ÊÒÑ¾­½áÊø£¬ĞÂµÄµ¥´Ê¿ªÊ¼
+		}//è¯»å–æ–‡ä»¶ä¸‹ä¸€è¡Œ,è¯»å–BUFFER_MAXä¸ªå­—ç¬¦æˆ–è€…è¯»å–åˆ°'\n'æ—¶åœæ­¢
+		buffer->startPtr = &buffer->data[0];//å½“å‰å•è¯å·²ç»ç»“æŸï¼Œæ–°çš„å•è¯å¼€å§‹
 		buffer->cur = &buffer->data[0];
 
 		curLine.boundaryCount = 0;
@@ -389,16 +387,16 @@ char getChar() {
 		curLine.operatorCount = 0;
 		curLine.staticInfo = vector<errorInfo>{};
 	}
-	else if (buffer->cur == &buffer->data[BUFFER_MAX]) {//µ±Ç°Ö¸ÕëÒÑ¾­¶ÁÍê¸Ã»º³åÇøÀïÃæµÄÈ«²¿ÄÚÈİ£¬µ«ÊÇÈÔÎ´Óöµ½»»ĞĞ·û£¬ËùÒÔÓ¦¸Ã½Ó×Å¶ÁÕâÒ»ĞĞ
+	else if (buffer->cur == &buffer->data[BUFFER_MAX]) {//å½“å‰æŒ‡é’ˆå·²ç»è¯»å®Œè¯¥ç¼“å†²åŒºé‡Œé¢çš„å…¨éƒ¨å†…å®¹ï¼Œä½†æ˜¯ä»æœªé‡åˆ°æ¢è¡Œç¬¦ï¼Œæ‰€ä»¥åº”è¯¥æ¥ç€è¯»è¿™ä¸€è¡Œ
 		fgets(buffer->data, BUFFER_MAX, fin);
-		buffer->cur = &buffer->data[0];//ÉÏÒ»¸öµ¥´Ê»¹Ã»½áÊø£¬µ«ÊÇ»º³åÇøÒÑ¾­ÓÃÍêÁË
+		buffer->cur = &buffer->data[0];//ä¸Šä¸€ä¸ªå•è¯è¿˜æ²¡ç»“æŸï¼Œä½†æ˜¯ç¼“å†²åŒºå·²ç»ç”¨å®Œäº†
 	}
 	else if (ch == ' ') {
 		buffer->cur++;
 		buffer->startPtr = buffer->cur;
 	}
 	else {
-		buffer->cur++;//Ö¸ÕëÏòÇ°ÒÆ¶¯Ò»¸ñ
+		buffer->cur++;//æŒ‡é’ˆå‘å‰ç§»åŠ¨ä¸€æ ¼
 	}
 
 	return ch;
@@ -422,7 +420,6 @@ void myDynStringInit(dynString* strP, int initSize) {
 		strP->capacity = initSize;
 	}
 }
-
 
 void myDynStringFree(dynString* strP) {
 	if (strP != NULL) {
@@ -481,7 +478,7 @@ void myDynArrayRealloc(dynArray* arrP, int newSize) {
 	while (Cap < newSize) {
 		Cap = Cap << 1;
 	}
-	//ÓĞÎÊÌâ
+	//æœ‰é—®é¢˜
 	data = (void**)realloc(arrP->data, Cap);
 	if (!data)
 		error("failuer to allocate the memory!\n");
@@ -517,9 +514,8 @@ int myDynArraySearch(dynArray* arrP, int key) {
 		if (key == **p)
 			return i;
 	}
-	return -1;
+	return  -1;
 }
-
 
 //colorazation
 
@@ -530,45 +526,40 @@ void colorToken(int state) {
 	switch (state) {
 	case LEX_NORMAL:
 	{
-		if (token >= CPP_IDENT) //±êÊ¶·û
+		if (token >= CPP_IDENT) //æ ‡è¯†ç¬¦
 			SetConsoleTextAttribute(h, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		else if (token >= CPP_NUMBER) //³£Á¿
+		else if (token >= CPP_NUMBER) //å¸¸é‡
 			SetConsoleTextAttribute(h, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		else if (token >= CPP_BOUNDARY)	//½ç·û
+		else if (token >= CPP_BOUNDARY) //ç•Œç¬¦
 			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_INTENSITY);
-		else if (token >= CPP_OPERA)//ÔËËã·û
+		else if (token >= CPP_OPERA)//è¿ç®—ç¬¦
 			SetConsoleTextAttribute(h, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-		else //¶¨Òå·û
+		else //å®šä¹‰ç¬¦
 			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 		p = (char*)malloc(sizeof(char) * 256);
 		p = getTkstr(token);
-		//printf("%s", p);
-
+		string a = p;
+		CountToken[a]++;
 		if (token < CPP_OPERA) {
-			printf("<¶¨Òå·û, %s>", p);
-			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("¶¨Òå·û"), (char*)((tkWord*)tkTable.data[token])->str)));
-			//tokenStream[tokenCount++] = std::make_pair((char*)"¶¨Òå·û" , (char*)((tkWord*)tkTable.data[token])->str);
+			printf("<å®šä¹‰ç¬¦, %s>", p);
+			tokenStream[tokenCount++] = std::make_pair((char*)"å®šä¹‰ç¬¦", a);
 			definatioinCount++;
 		}
 		else if (token < CPP_BOUNDARY) {
-			printf("<ÔËËã·û, %s>", p);
-			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("ÔËËã·û"), (char*)((tkWord*)tkTable.data[token])->str)));
-			//tokenStream[tokenCount++] = std::make_pair((char*)"ÔËËã·û", (char*)((tkWord*)tkTable.data[token])->str);
+			printf("<è¿ç®—ç¬¦, %s>", p);
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("è¿ç®—ç¬¦"), a)));
 		}
 		else if (token < CPP_NUMBER) {
-			printf("<½ç·û, %s>", p);
-			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("½ç·û"), (char*)((tkWord*)tkTable.data[token])->str)));
-			//tokenStream[tokenCount++] = std::make_pair((char*)"½ç·û", (char*)((tkWord*)tkTable.data[token])->str);
+			printf("<ç•Œç¬¦, %s>", p);
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("ç•Œç¬¦"), a)));
 		}
 		else if (token < CPP_IDENT) {
-			printf("<³£Á¿, %s>", p);
-			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("³£Á¿"), (char*)tkstr.data)));
-			//tokenStream[tokenCount++] = std::make_pair((char*)"³£Á¿", (char*)tkstr.data);
+			printf("<å¸¸é‡, %s>", p);
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("å¸¸é‡"), a)));
 		}
 		else {
-			printf("<±êÊ¶·û, %s>", p);
-			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("±êÊ¶·û"), (char*)tkstr.data)));
-			//tokenStream[tokenCount++] = std::make_pair((char*)"±êÊ¶·û", (char*)tkstr.data);
+			printf("<æ ‡è¯†ç¬¦, %s>", p);
+			tokenStream.insert(make_pair(tokenCount++, make_pair((char*)("æ ‡è¯†ç¬¦"), a)));
 		}
 		break;
 	}
@@ -588,20 +579,27 @@ void skipWhiteSpace() {
 			lineCount++;
 		}
 		printf("%c", ch);
-		ch = getChar();//Õâ¸ögetCharÒª¸Ä³É´ÓbufferÀïÃæ¶ÁÈ¡×Ö·û£¬Èç¹ûch¶Áµ½bufferµÄ½áÊøµÄµØ·½£¬ÄÇ¾ÍÒªÈÃbuffer×Ô¶¯¶ÁÈ¡ÎÄ¼şµÄÏÂÒ»²¿·Ö»òÕßÏÂÒ»ĞĞ
+		ch = getChar();//è¿™ä¸ªgetCharè¦æ”¹æˆä»bufferé‡Œé¢è¯»å–å­—ç¬¦ï¼Œå¦‚æœchè¯»åˆ°bufferçš„ç»“æŸçš„åœ°æ–¹ï¼Œé‚£å°±è¦è®©bufferè‡ªåŠ¨è¯»å–æ–‡ä»¶çš„ä¸‹ä¸€éƒ¨åˆ†æˆ–è€…ä¸‹ä¸€è¡Œ
 
 	}
 }
-
 
 void parseComment() {
 	ch = getChar();
 	int end = 0;
 	do {
-		while(ch!='*'){
+		while (ch != '*') {
 			if (ch == '\n') {
 				printf("\n");
 				lineCount++;
+			}
+			if (ch == '\0') {
+				errorInfo curError;
+				curError.line = lineCount;
+				curError.col = curLine.charaCount;
+				curError.errorInfo = "Block Comment not completed";
+				curLine.staticInfo.push_back(curError);
+				return;
 			}
 			ch = getChar();
 		}
@@ -610,9 +608,9 @@ void parseComment() {
 			ch = getChar();
 			if (ch == '/') {
 				end = 1;
-				break;
+				return ;
 			}
-			else {
+			else if(ch!='*'){
 				ch = getChar();
 			}
 		}
@@ -645,7 +643,7 @@ void preprocess() {
 					else {
 						find = strchr(find + 1, '\\');
 					}
-					//*(find + 1) == '\n' ? nextLine() : [&]()->void{find = strchr(find, '\\');}
+					//*(find + 1) == '\n'   nextLine() : [&]()->void{find = strchr(find, '\\');}
 				}
 				if (ch == '\n') {
 					ch = getChar();
@@ -654,8 +652,6 @@ void preprocess() {
 					ch = getChar();
 				}
 				if (ch == '\n') {
-					lineCount++;
-					printf("\n");
 					token = -1;
 				}
 				if (ch == '\0') {
@@ -708,12 +704,12 @@ tkWord* tkInsertKeyWord(tkWord* tp) {
 	int key;
 	myDynArrayAdd(&tkTable, tp);
 	key = elfHash((char*)tp->str);
-	tp->next = tkHashTable[key];//µÚkeyÏîÊÇÒ»¸ö tkWordÁĞ±í
-	tkHashTable[key] = tp; //È»ºó°ÑÕâÒ»Ïî¼Óµ½Á´±í×îÇ°Í·£¬×îºó·Åµ½tkHashTableµÄµÚkeyÏî
+	tp->next = tkHashTable[key];//ç¬¬keyé¡¹æ˜¯ä¸€ä¸ª tkWordåˆ—è¡¨
+	tkHashTable[key] = tp; //ç„¶åæŠŠè¿™ä¸€é¡¹åŠ åˆ°é“¾è¡¨æœ€å‰å¤´ï¼Œæœ€åæ”¾åˆ°tkHashTableçš„ç¬¬keyé¡¹
 	return tp;
 }
 
-tkWord* tkFindWord(char* p, int key) {//hash¼üÖµÊÇkey£¬×Ö·û´®ÊÇp£¬¿´¿´ÊÇ·ñÒÑ¾­´æÔÚÓÚ¹şÏ£±íÖĞÁË
+tkWord* tkFindWord(char* p, int key) {//hashé”®å€¼æ˜¯keyï¼Œå­—ç¬¦ä¸²æ˜¯pï¼Œçœ‹çœ‹æ˜¯å¦å·²ç»å­˜åœ¨äºå“ˆå¸Œè¡¨ä¸­äº†
 	tkWord* temp;
 	tkWord* res = NULL;
 	temp = tkHashTable[key];//hashtable ( str -> key)   tkTable(key -> tkWord)
@@ -737,13 +733,13 @@ tkWord* tkInsertIdentifier(char* p) {
 
 	key = elfHash(p);
 	temp = tkFindWord(p, key);
-	if (!temp) {//ÕÒ²»µ½¶ÔÓ¦µÄµ¥´Ê£¬ËµÃ÷Ëı»¹Ã»ÓĞ±»¼ÓÈëµ½tkHashTableÖĞÈ¥£¬È»ºó½ÓÏÂÀ´¾Í¿ÉÍùÀï²åÈëtkWordÁË
+	if (!temp) {//æ‰¾ä¸åˆ°å¯¹åº”çš„å•è¯ï¼Œè¯´æ˜å¥¹è¿˜æ²¡æœ‰è¢«åŠ å…¥åˆ°tkHashTableä¸­å»ï¼Œç„¶åæ¥ä¸‹æ¥å°±å¯å¾€é‡Œæ’å…¥tkWordäº†
 		len = strlen(p);
 		temp = (tkWord*)malloc(sizeof(tkWord) + len + 1);
-		temp->next = tkHashTable[key];//tkHashTableÖĞÒ»¸öÏîÖĞ£¬Í¬Ò»¸öÁĞ±íÀïµÄ´Êcode¿ÉÄÜ²»Í¬£¡
+		temp->next = tkHashTable[key];//tkHashTableä¸­ä¸€ä¸ªé¡¹ä¸­ï¼ŒåŒä¸€ä¸ªåˆ—è¡¨é‡Œçš„è¯codeå¯èƒ½ä¸åŒï¼
 		tkHashTable[key] = temp;
 		myDynArrayAdd(&tkTable, temp);
-		temp->code = tkTable.len - 1;//tkTable ÊÇÓÃÀ´´æ code<->strµÄ,·ûºÅ±í,Í¬Ò»¸ö·ûºÅÖ»ÄÜ³öÏÖÒ»´Î,±êÊ¶·û³ıÍâ
+		temp->code = tkTable.len - 1;//tkTable æ˜¯ç”¨æ¥å­˜ code<->strçš„,ç¬¦å·è¡¨,åŒä¸€ä¸ªç¬¦å·åªèƒ½å‡ºç°ä¸€æ¬¡,æ ‡è¯†ç¬¦é™¤å¤–
 		token = tkTable.len - 1;
 		s = (char*)temp + sizeof(tkWord);
 		temp->str = (char*)s;
@@ -758,7 +754,7 @@ tkWord* tkInsertIdentifier(char* p) {
 //parse func
 void linker(tkWord* ref) {
 
-}//½«À´µ÷ÓÃÁ´½ÓÆ÷£¬Á¬½Ó#include µÄÍ·ÎÄ¼ş
+}//å°†æ¥è°ƒç”¨é“¾æ¥å™¨ï¼Œè¿æ¥#include çš„å¤´æ–‡ä»¶
 
 int isDigit(char c) {
 	return c >= '0' && c <= '9';
@@ -774,7 +770,7 @@ int notDigit(char c) {
 
 int ifNexIs(char c, eTokenCode A, eTokenCode B) {
 	if (*buffer->cur == c) {
-		buffer->cur++;
+		ch = getChar();
 		return A;
 	}
 	return B;
@@ -806,8 +802,8 @@ void parseIdentifier(tkWord* result) {//
 		result->code = token;
 		return;
 	}
-	if (ch != ' ' && ch != '\t' && ch != '\r' && ch != '\n' && ch != ',' && ch != ';' && ch != '{' && ch != '[' && ch != ']' && ch != '(' && ch != ')' && ch!='>') {
-		//±êÊ¶·û´íÎó
+	if (ch != ' ' && ch != '\t' && ch != '\r' && ch != '\n' && ch != ',' && ch != ';' && ch != '{' && ch != '[' && ch != ']' && ch != '(' && ch != ')' && ch != '>' && ch != '=' && ch != '<') {
+		//æ ‡è¯†ç¬¦é”™è¯¯
 		errorInfo curError;
 		curError.line = lineCount;
 		curError.col = curLine.charaCount;
@@ -822,7 +818,7 @@ void parseIdentifier(tkWord* result) {//
 	result->code = token;
 }
 
-void parseString(tkWord* result) {//³£Á¿²»ÓÃ¼ÓÈë·ûºÅ±í
+void parseString(tkWord* result) {//å¸¸é‡ä¸ç”¨åŠ å…¥ç¬¦å·è¡¨
 	char c;
 	token = CPP_CCHAR;
 	myDynStringReset(&tkstr);
@@ -847,10 +843,10 @@ void parseString(tkWord* result) {//³£Á¿²»ÓÃ¼ÓÈë·ûºÅ±í
 				errorFlag = 1;
 				break;
 			}
-//			else if (ch == '\n') {
-	//			errorFlag = 1;
-		//		break;
-		//	}
+			//          else if (ch == '\n') {
+				//          errorFlag = 1;
+					//      break;
+					//  }
 			else {
 				myDynStringChcat(&tkstr, ch);
 				ch = getChar();
@@ -929,32 +925,31 @@ void parseString(tkWord* result) {//³£Á¿²»ÓÃ¼ÓÈë·ûºÅ±í
 	token = result->code = CPP_CCHAR;
 }
 
-
-//Ôö¼ÓÁË½âÎöÊı×ÖµÄ´¦Àí
+//å¢åŠ äº†è§£ææ•°å­—çš„å¤„ç†
 void parseNumber(tkWord* result) {
 	/*parse number maybe integet maybe float or in scientific notation
 	* maybe in decimal , hex, oct, bin
 	*/
 	int valid = 1;
-	int radix = 10; //Ä¬ÈÏÊÇ10½øÖÆ
-	myDynStringReset(&tkstr);//tokenstr ÀïÃæ¼ÇÂ¼Õâ¸öÊı×Ö¶ÔÓ¦µÄ×Ö·û´®
+	int radix = 10; //é»˜è®¤æ˜¯10è¿›åˆ¶
+	myDynStringReset(&tkstr);//tokenstr é‡Œé¢è®°å½•è¿™ä¸ªæ•°å­—å¯¹åº”çš„å­—ç¬¦ä¸²
 	if (ch != '0') {
 		do {
 			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
 		} while (isDigit(ch));
 	}
-	else if(ch == '0'){//0¿ªÍ·
+	else if (ch == '0') {//0å¼€å¤´
 		radix = 8;
 		myDynStringChcat(&tkstr, ch);
 		ch = getChar();
 		if (ch == '.') {
-			radix = 10;//Ó¦¸ÃÊÇ10½øÖÆ
+			radix = 10;//åº”è¯¥æ˜¯10è¿›åˆ¶
 			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
 		}
 		else if (ch == 'x' || ch == 'X') {
-			radix = 16;//ÊÇ16
+			radix = 16;//æ˜¯16
 			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
 		}
@@ -1007,7 +1002,7 @@ void parseNumber(tkWord* result) {
 			} while (isDigit(ch));
 		}
 
-		if (ch == 'E' || ch == 'e') {//ÊÇ·ñÊÇÓÃ¿ÆÑ§¼ÆÊı·¨
+		if (ch == 'E' || ch == 'e') {//æ˜¯å¦æ˜¯ç”¨ç§‘å­¦è®¡æ•°æ³•
 			myDynStringChcat(&tkstr, ch);
 			ch = getChar();
 			if (ch == '+' || ch == '-') {
@@ -1019,11 +1014,11 @@ void parseNumber(tkWord* result) {
 					ch = getChar();
 					while (isDigit(ch)) {
 						myDynStringChcat(&tkstr, ch);
-						ch = getChar();//ÕâÀï¿ÉÄÜ¶à¶ÁÁËÒ»¸ö×Ö·û
+						ch = getChar();//è¿™é‡Œå¯èƒ½å¤šè¯»äº†ä¸€ä¸ªå­—ç¬¦
 					}
 				}
 				else {
-					//·Ç·¨Ö¸Êı +/- ºóÃæÓ¦¸ÃÊÇÊı×Ö
+					//éæ³•æŒ‡æ•° +/- åé¢åº”è¯¥æ˜¯æ•°å­—
 					errorInfo curError;
 					curError.line = lineCount;
 					curError.col = curLine.charaCount;
@@ -1038,7 +1033,7 @@ void parseNumber(tkWord* result) {
 					ch = getChar();
 				} while (isDigit(ch));
 				if (notDigit(ch) && ch != '*') {
-					//·Ç·¨±êÊ¶·û£¬Êı×ÖºóÃæ²»Ó¦¸Ã¸ú×ÖÄ¸»òÏÂ»®Ïß
+					//éæ³•æ ‡è¯†ç¬¦ï¼Œæ•°å­—åé¢ä¸åº”è¯¥è·Ÿå­—æ¯æˆ–ä¸‹åˆ’çº¿
 					errorInfo curError;
 					curError.line = lineCount;
 					curError.col = curLine.charaCount;
@@ -1048,8 +1043,8 @@ void parseNumber(tkWord* result) {
 				}
 			}
 			else {
-				//¼ÇÂ¼µÚ¼¸ĞĞ£¬µÚ¼¸ÁĞ³öÏÖÊ²Ã´ÑùµÄ´íÎó
-				//ÕâÀïÊÇEºóÃæ ·Ç·¨Ö¸Êı invalid expo, EºóÃæÓ¦¸Ã(+|-)digits
+				//è®°å½•ç¬¬å‡ è¡Œï¼Œç¬¬å‡ åˆ—å‡ºç°ä»€ä¹ˆæ ·çš„é”™è¯¯
+				//è¿™é‡Œæ˜¯Eåé¢ éæ³•æŒ‡æ•° invalid expo, Eåé¢åº”è¯¥(+|-)digits
 				errorInfo curError;
 				curError.line = lineCount;
 				curError.col = curLine.charaCount;
@@ -1058,8 +1053,8 @@ void parseNumber(tkWord* result) {
 				valid = 0;
 			}
 		}
-		else if ((notDigit(ch) && ch != '*') || ch=='.') {
-			//·Ç·¨Êı×Ö³£Á¿£¬Êı×ÖºóÃæ²»Ó¦¸Ã¸ú×ÖÄ¸»òÏÂ»®Ïß
+		else if ((notDigit(ch) && ch != '*') || ch == '.') {
+			//éæ³•æ•°å­—å¸¸é‡ï¼Œæ•°å­—åé¢ä¸åº”è¯¥è·Ÿå­—æ¯æˆ–ä¸‹åˆ’çº¿
 			errorInfo curError;
 			curError.line = lineCount;
 			curError.col = curLine.charaCount;
@@ -1079,11 +1074,11 @@ void parseNumber(tkWord* result) {
 				ch = getChar();
 				while (isDigit(ch)) {
 					myDynStringChcat(&tkstr, ch);
-					ch = getChar();//ÕâÀï¿ÉÄÜ¶à¶ÁÁËÒ»¸ö×Ö·û
+					ch = getChar();//è¿™é‡Œå¯èƒ½å¤šè¯»äº†ä¸€ä¸ªå­—ç¬¦
 				}
 			}
 			else {
-				//·Ç·¨Ö¸Êı +/- ºóÃæÓ¦¸ÃÊÇÊı×Ö
+				//éæ³•æŒ‡æ•° +/- åé¢åº”è¯¥æ˜¯æ•°å­—
 				errorInfo curError;
 				curError.line = lineCount;
 				curError.col = curLine.charaCount;
@@ -1098,7 +1093,7 @@ void parseNumber(tkWord* result) {
 				ch = getChar();
 			} while (isDigit(ch));
 			if (notDigit(ch) && ch != '*') {
-				//·Ç·¨±êÊ¶·û£¬Êı×ÖºóÃæ²»Ó¦¸Ã¸ú×ÖÄ¸»òÏÂ»®Ïß
+				//éæ³•æ ‡è¯†ç¬¦ï¼Œæ•°å­—åé¢ä¸åº”è¯¥è·Ÿå­—æ¯æˆ–ä¸‹åˆ’çº¿
 				errorInfo curError;
 				curError.line = lineCount;
 				curError.col = curLine.charaCount;
@@ -1108,8 +1103,8 @@ void parseNumber(tkWord* result) {
 			}
 		}
 		else {
-			//¼ÇÂ¼µÚ¼¸ĞĞ£¬µÚ¼¸ÁĞ³öÏÖÊ²Ã´ÑùµÄ´íÎó
-			//ÕâÀïÊÇEºóÃæ ·Ç·¨Ö¸Êı invalid expo, EºóÃæÓ¦¸Ã(+|-)digits
+			//è®°å½•ç¬¬å‡ è¡Œï¼Œç¬¬å‡ åˆ—å‡ºç°ä»€ä¹ˆæ ·çš„é”™è¯¯
+			//è¿™é‡Œæ˜¯Eåé¢ éæ³•æŒ‡æ•° invalid expo, Eåé¢åº”è¯¥(+|-)digits
 			errorInfo curError;
 			curError.line = lineCount;
 			curError.col = curLine.charaCount;
@@ -1119,14 +1114,14 @@ void parseNumber(tkWord* result) {
 		}
 	}
 	else if (ch == ',') {
-		
+
 	}
 	else if (notDigit(ch)) {
 		errorInfo curError;
-			curError.line = lineCount;
-			curError.col = curLine.charaCount;
-			curError.errorInfo = "invalid const number defination, should not follow alpha or underline";
-			curLine.staticInfo.push_back(curError);
+		curError.line = lineCount;
+		curError.col = curLine.charaCount;
+		curError.errorInfo = "invalid const number defination, should not follow alpha or underline";
+		curLine.staticInfo.push_back(curError);
 	}
 
 	myDynStringChcat(&tkstr, '\0');
@@ -1135,16 +1130,15 @@ void parseNumber(tkWord* result) {
 
 	if (!valid) return;
 
-
-	//½ÓÏÂÀ´ÊÇ¶ÔÊı×Ö½øĞĞ·ÖÀà
+	//æ¥ä¸‹æ¥æ˜¯å¯¹æ•°å­—è¿›è¡Œåˆ†ç±»
 	if (tkstr.len == 2)
-		token = result->code = CPP_CINT;  //const int ÕûĞÍ³£Á¿
+		token = result->code = CPP_CINT;  //const int æ•´å‹å¸¸é‡
 	else {
-		int float_flag = NOT_FLOAT; // ÏÈÄ¬ÈÏÊÇ·Ç¸¡µãÊı
+		int float_flag = NOT_FLOAT; // å…ˆé»˜è®¤æ˜¯éæµ®ç‚¹æ•°
 		int index = 0;
 		token = result->code = CPP_N_DECIMAL;
 		if (tkstr.data[index] == '0') {
-			radix = 8;	//·Ç¸¡µãÊı£¬¿ªÍ·ÊÇ0£¬Ôò²»¿ÉÄÜÊÇÊ®½øÖÆ
+			radix = 8;  //éæµ®ç‚¹æ•°ï¼Œå¼€å¤´æ˜¯0ï¼Œåˆ™ä¸å¯èƒ½æ˜¯åè¿›åˆ¶
 			index++;
 			token = result->code = CPP_N_OCTAL;
 			if ((tkstr.data[index] == 'x' || tkstr.data[index] == 'X') &&
@@ -1152,27 +1146,27 @@ void parseNumber(tkWord* result) {
 				radix = 16;
 				index++;
 				token = result->code = CPP_N_HEX;
-			}//16½øÖÆ
+			}//16è¿›åˆ¶
 			else if (tkstr.data[index] == 'b' || tkstr.data[index] == 'B' &&
 				(tkstr.data[index + 1] == '0' || tkstr.data[index + 1] == '1')) {
 				radix = 2;
 				index++;
 				token = result->code = CPP_N_BINARY;
-			}//2½øÖÆ
-		}//Ö»´¦ÀíÁË1¿ªÍ·µÄÊı×ÖµÄµÚÒ»Î»
+			}//2è¿›åˆ¶
+		}//åªå¤„ç†äº†1å¼€å¤´çš„æ•°å­—çš„ç¬¬ä¸€ä½
 
 		for (;;) {
 			char c = tkstr.data[index++];
 			if (isDigit(c) || (isXDigit(c) && radix == 16)) {
-				//É¨¹ıËùÓĞĞ¡ÊıµãÇ°Ãæ»òÕßxÇ°ÃæµÄÊı×Ö£¬Ğ¡ÊıµãºóÃæµÄÊı×ÖÒ²¿ÉÒÔÉ¨¹ı£¬µ«ÊÇ¿ÆÑ§¼ÆÊı·¨·ûºÅºóµÄÊı×Ö²»ÄÜÉ¨
+				//æ‰«è¿‡æ‰€æœ‰å°æ•°ç‚¹å‰é¢æˆ–è€…xå‰é¢çš„æ•°å­—ï¼Œå°æ•°ç‚¹åé¢çš„æ•°å­—ä¹Ÿå¯ä»¥æ‰«è¿‡ï¼Œä½†æ˜¯ç§‘å­¦è®¡æ•°æ³•ç¬¦å·åçš„æ•°å­—ä¸èƒ½æ‰«
 			}
-			else if (c == '.') {//Èç¹ûÓĞĞ¡Êıµã£¬ËµÃ÷ËûÊÇ¸ö¸¡µãÊı
+			else if (c == '.') {//å¦‚æœæœ‰å°æ•°ç‚¹ï¼Œè¯´æ˜ä»–æ˜¯ä¸ªæµ®ç‚¹æ•°
 				float_flag = AFTER_POINT;
 			}
 			else if ((radix <= 10 && (c == 'E' || c == 'e')) ||
-				(radix <= 16 && (c == 'P' || c == 'p'))) {//¿ÆÑ§¼ÆÊı·¨
+				(radix <= 16 && (c == 'P' || c == 'p'))) {//ç§‘å­¦è®¡æ•°æ³•
 				float_flag = AFTER_EXPON;
-				break;//²»ÓÃ¼ÌĞøÊ¶±ğ¿ÆÑ§¼ÆÊı·¨ºóÃæ²¿·ÖµÄÊı×Ö
+				break;//ä¸ç”¨ç»§ç»­è¯†åˆ«ç§‘å­¦è®¡æ•°æ³•åé¢éƒ¨åˆ†çš„æ•°å­—
 			}
 			else {
 				index--;
@@ -1180,7 +1174,7 @@ void parseNumber(tkWord* result) {
 			}
 		}
 
-		if (radix == 8 && float_flag != NOT_FLOAT) {//8½øÖÆÊıµ«ÊÇ°üº¬¿ÆÑ§¼ÆÊı·¨
+		if (radix == 8 && float_flag != NOT_FLOAT) {//8è¿›åˆ¶æ•°ä½†æ˜¯åŒ…å«ç§‘å­¦è®¡æ•°æ³•
 			radix = 10;
 		}
 
@@ -1196,8 +1190,8 @@ void parseNumber(tkWord* result) {
 			token = result->code = CPP_CFLOAT;
 		}
 		else {
-			//Èç¹ûÊÇ¸¡µãÊı£¬¾Í²»·Ö½øÖÆÁË£¬¶¼ÊÇCPP_CFLOAT
-			//Èç¹ûÊÇÕûĞÎ£¬¾Í·Ö CPP_DECIMAL | CPP_BINARY | CPP_HEX | CPP_OCTAL
+			//å¦‚æœæ˜¯æµ®ç‚¹æ•°ï¼Œå°±ä¸åˆ†è¿›åˆ¶äº†ï¼Œéƒ½æ˜¯CPP_CFLOAT
+			//å¦‚æœæ˜¯æ•´å½¢ï¼Œå°±åˆ† CPP_DECIMAL | CPP_BINARY | CPP_HEX | CPP_OCTAL
 		}
 	}
 }
@@ -1205,26 +1199,25 @@ void parseNumber(tkWord* result) {
 //main lexer func
 
 void lexerDirect() {
-	tkWord result;//ÓÃÀ´´æ´¢´Ê·¨·ÖÎöµÄÎåÔª×é(ÕâÀïÖ»ÊÇÁ½Ôª×é)
-//	ch = getChar();
-	switch (ch) {//ch¾ÍºÜÏñÄÇ¸östartPtr£¬¿´ÄÜ²»ÄÜºÏµ½Ò»Æğ£¬ÕâÑùch=getChar()ÄÜ²»ÄÜÈ¥µô
-		//....  ±¾À´ÊÇ\n µ«ÊÇ \r\nÖ»»áÍ¬Ê±³öÏÖ£¬ËùÒÔ\nÈ«¶¼´¦ÀíµôÁË
+	tkWord result;//ç”¨æ¥å­˜å‚¨è¯æ³•åˆ†æçš„äº”å…ƒç»„(è¿™é‡Œåªæ˜¯ä¸¤å…ƒç»„)
+//  ch = getChar();
+	switch (ch) {//chå°±å¾ˆåƒé‚£ä¸ªstartPtrï¼Œçœ‹èƒ½ä¸èƒ½åˆåˆ°ä¸€èµ·ï¼Œè¿™æ ·ch=getChar()èƒ½ä¸èƒ½å»æ‰
+		//....  æœ¬æ¥æ˜¯\n ä½†æ˜¯ \r\nåªä¼šåŒæ—¶å‡ºç°ï¼Œæ‰€ä»¥\nå…¨éƒ½å¤„ç†æ‰äº†
 
 	case ' ': case '\t': case '\f': case '\v': case '\r':
 		skipWhiteSpace();
-		buffer->cur--;
 		charCount--;
+		buffer->cur--;
 		curLine.charaCount--;
 		token = -1;
 		break;
 		//....
-	
+
 	case '\n':
 		printf("%c", ch);
 		token = -1;
 		lineCount++;
 		break;
-
 
 	case '\'': case '\"':
 		parseString(&result);
@@ -1242,9 +1235,9 @@ void lexerDirect() {
 			parseComment();
 			//....
 		}
-		else if (c == '/') {//¿´¿´»»ĞĞ·ûÇ°Ò»¸öÊÇ²»ÊÇ\·ûºÅ,Èç¹ûÊÇ\·ûºÅ£¬ÄÇËûÏÂÒ»ĞĞ»¹ÊÇ×¢ÊÍ
+		else if (c == '/') {//çœ‹çœ‹æ¢è¡Œç¬¦å‰ä¸€ä¸ªæ˜¯ä¸æ˜¯\ç¬¦å·,å¦‚æœæ˜¯\ç¬¦å·ï¼Œé‚£ä»–ä¸‹ä¸€è¡Œè¿˜æ˜¯æ³¨é‡Š
 			// ... \\qweqweqweqweasdqwed\
-				weqweadadw
+	                weqweadadw
 			char* find;
 			find = (char*)malloc(sizeof(char) * BUFFER_MAX);
 			find = strchr(buffer->data, '\\');
@@ -1258,7 +1251,7 @@ void lexerDirect() {
 				else {
 					find = strchr(find + 1, '\\');
 				}
-				//*(find + 1) == '\n' ? nextLine() : [&]()->void{find = strchr(find, '\\');}
+				//*(find + 1) == '\n'   nextLine() : [&]()->void{find = strchr(find, '\\');}
 			}
 			while ((!find) && ch != '\n' && ch != '\0') {
 				ch = getChar();
@@ -1274,7 +1267,7 @@ void lexerDirect() {
 				curLine.charaCount--;
 				token = -1;
 			}
-		}//¿´Ò»ÏÂÄÜ²»ÄÜºÍparseComment()ºÏµ½Ò»Æğ
+		}//çœ‹ä¸€ä¸‹èƒ½ä¸èƒ½å’ŒparseComment()åˆåˆ°ä¸€èµ·
 		else if (c == '=') {
 			ch = getChar();
 			result.code = CPP_DIV_EQ;
@@ -1287,7 +1280,7 @@ void lexerDirect() {
 		//....
 		break;
 	}
-	/*		ÕâÒ»¶ÎÔİÊ±ÏÈ²»¹Ü£¬»¹Ã»¸ãÇå¾ßÌåÊÇÉ¶ÒâË¼
+	/*      è¿™ä¸€æ®µæš‚æ—¶å…ˆä¸ç®¡ï¼Œè¿˜æ²¡ææ¸…å…·ä½“æ˜¯å•¥æ„æ€
 			case 'L':
 			case 'u':
 			case 'U':
@@ -1318,7 +1311,6 @@ void lexerDirect() {
 		curLine.charaCount--;
 	}
 	break;
-
 
 	//identifier
 	case '_':
@@ -1353,7 +1345,7 @@ void lexerDirect() {
 
 		//operator&&delimiter
 
-		//¿´¿´ÄÜ·ñ½âÎöÍ·ÎÄ¼ş
+		//çœ‹çœ‹èƒ½å¦è§£æå¤´æ–‡ä»¶
 	case '<':
 		token = result.code = CPP_LESS;
 		curLine.operatorCount++;
@@ -1373,7 +1365,7 @@ void lexerDirect() {
 		}
 		/*
 		else if (notDigit(*buffer->cur)) {
-			parseString(&result);//Èç¹ûÃ»ÓĞ¶ÔÓ¦µÄ> ËµÃ÷Ëû¾ÍÊÇÒ»¸ö<·ûºÅ£¬ËùÒÔ¾Í¿ÉÒÔÈÃresult.code = CPP_LESS
+			parseString(&result);//å¦‚æœæ²¡æœ‰å¯¹åº”çš„> è¯´æ˜ä»–å°±æ˜¯ä¸€ä¸ª<ç¬¦å·ï¼Œæ‰€ä»¥å°±å¯ä»¥è®©result.code = CPP_LESS
 			angleMatching++;
 			constCount++;
 			curLine.constCount++;
@@ -1531,8 +1523,14 @@ void lexerDirect() {
 		break;
 		//...
 
+	case '@':
+		token = CPP_AT;
+		break;
 
-	//add file head #include || #define func
+	case '$':
+		token = CPP_DOLLAR;
+		break;
+		//add file head #include || #define func
 	case '#':
 		token = result.code = CPP_HASH;
 		curLine.boundaryCount++;
@@ -1596,8 +1594,7 @@ void lexerDirect() {
 		boundaryCount++;
 		break;
 
-
-		//¼ì²éÓÒÀ¨ºÅ
+		//æ£€æŸ¥å³æ‹¬å·
 	case '(':
 		token = result.code = CPP_OPEN_PAREN;
 		parenMatching++;
@@ -1640,14 +1637,14 @@ void lexerDirect() {
 		braceMatching--;
 		break;
 
-	case ';'://Ò»°ãÈç¹ûÕâÒ»ĞĞ'\r'Ç°ÃæµÄ×îºóÒ»¸ö×Ö·ûÊÇ: { } ÄÇÃ´²»ÓÃ; ·ñÔò¶¼ĞèÒª·ÖºÅ£¬ËùÒÔstaticOnLine ¿ÉÒÔÍ³¼ÆÕâÒ»ĞĞ×îºóÒ»¸ö×Ö·û´æµÄÊÇÊ²Ã´£¬Èç¹û·¢ÏÖÈ±ÉÙ;¿ÉÒÔ±¨´í
+	case ';'://ä¸€èˆ¬å¦‚æœè¿™ä¸€è¡Œ'\r'å‰é¢çš„æœ€åä¸€ä¸ªå­—ç¬¦æ˜¯: { } é‚£ä¹ˆä¸ç”¨; å¦åˆ™éƒ½éœ€è¦åˆ†å·ï¼Œæ‰€ä»¥staticOnLine å¯ä»¥ç»Ÿè®¡è¿™ä¸€è¡Œæœ€åä¸€ä¸ªå­—ç¬¦å­˜çš„æ˜¯ä»€ä¹ˆï¼Œå¦‚æœå‘ç°ç¼ºå°‘;å¯ä»¥æŠ¥é”™
 		token = result.code = CPP_SEMICOLON;
 		//noMatchingHandler();
 		curLine.boundaryCount++;
 		boundaryCount++;
 		break;
 
-	case -1: case '\0':
+	case  -1: case '\0':
 		over = true;
 		token = -1;
 		break;
@@ -1660,7 +1657,6 @@ void lexerDirect() {
 	ch = getChar();
 }
 #endif //!MYLEXER_H
-
 
 
 
@@ -1693,7 +1689,7 @@ void parseFileName(tkWord* result) {
 }
 
 void detachFileKeyWord(tkWord* result, int code) {
-	result->code = code;//Õâ¸öº¯Êı×¨ÃÅÓÃÀ´½âÎö< ºóÃæµÄ×Ö·û´®, Èç¹ûÃ»Óöµ½> ËµÃ÷Ëû¾ÍÊÇ< ¶ø²»ÊÇÌØÊâµÄ  vector<> , #include <> µÈ
+	result->code = code;//è¿™ä¸ªå‡½æ•°ä¸“é—¨ç”¨æ¥è§£æ< åé¢çš„å­—ç¬¦ä¸², å¦‚æœæ²¡é‡åˆ°> è¯´æ˜ä»–å°±æ˜¯< è€Œä¸æ˜¯ç‰¹æ®Šçš„  vector<> , #include <> ç­‰
 	ch = getChar();
 	for (;;) {
 		if (ch == ' ') {
@@ -1701,7 +1697,7 @@ void detachFileKeyWord(tkWord* result, int code) {
 		}
 		else {
 			switch (ch) {
-			case '>'://´Ë´¦ÅĞ¶¨£¬Èç¹ûtkstr.data ²»ÊÇ¹Ø¼ü×Ö£¬¾Í¿ÉÒÔµ÷ÓÃÁ¬½ÓÆ÷ÁË
+			case '>'://æ­¤å¤„åˆ¤å®šï¼Œå¦‚æœtkstr.data ä¸æ˜¯å…³é”®å­—ï¼Œå°±å¯ä»¥è°ƒç”¨è¿æ¥å™¨äº†
 				linker(result);
 				break;
 
@@ -1717,11 +1713,11 @@ void detachFileKeyWord(tkWord* result, int code) {
 			case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
 			case 'Y': case 'Z':
 				parseFileName(result);
-				if (elfHash((char*)result->str)) {//Èç¹ûhashÖ®ºóÕÒµ½ÁË£¬ËµÃ÷ÒÑ¾­ÓĞÕâ¸ö¹Ø¼ü×ÖÁË,±ÈÈçKW_INT,KW_DOUBLEÖ®Àà
+				if (elfHash((char*)result->str)) {//å¦‚æœhashä¹‹åæ‰¾åˆ°äº†ï¼Œè¯´æ˜å·²ç»æœ‰è¿™ä¸ªå…³é”®å­—äº†,æ¯”å¦‚KW_INT,KW_DOUBLEä¹‹ç±»
 					result->code = tkHashTable[elfHash((char*)result->str)]->code;
 				}
-				else {//·ñÔòµÄ»°£¬¾ÍÊÇ×Ö·û´®£¬Õâ¸ö×Ö·û´®¾ÍÊÇ#include µÄÍ·ÎÄ¼ş
-					result->code = CPP_IDENT;//ÔİÊ±µ±×÷Ò»¸ö±êÊ¶·û
+				else {//å¦åˆ™çš„è¯ï¼Œå°±æ˜¯å­—ç¬¦ä¸²ï¼Œè¿™ä¸ªå­—ç¬¦ä¸²å°±æ˜¯#include çš„å¤´æ–‡ä»¶
+					result->code = CPP_IDENT;//æš‚æ—¶å½“ä½œä¸€ä¸ªæ ‡è¯†ç¬¦
 					tkInsertIdentifier((char*)result->str);
 				}
 			}
